@@ -16,10 +16,13 @@ use_part_of: true
 package: resources
 
 groups:
-  - path: assets/images
-    class_name: Images
-    types: [ .png, .jpg, .jpeg, .webp, .webm, .bmp ]
-#  - path: assets/vectors
-#    class_name: Svgs
-#    package: res
-#    types: [ .svg ]
+  # - path: assets/images
+  #   class_name: Images
+  #   types: [ .png, .jpg, .jpeg, .webp, .webm, .bmp ]
+  - path: assets/icons
+    class_name: AppIcons
+    package: res
+    types: [ .svg ]
+
+
+    

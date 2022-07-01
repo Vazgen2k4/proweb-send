@@ -1,4 +1,4 @@
-package com.example.proweb_send
+package com.proweb.prochat
 
 import io.flutter.embedding.android.FlutterActivity
 
