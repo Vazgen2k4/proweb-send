@@ -6,7 +6,7 @@ import 'package:proweb_send/ui/pages/home_page/home_page.dart';
 import 'package:proweb_send/ui/router/app_routes.dart';
 
 class AppNavigator {
-  static String initRoute = AppRoutes.authStart;
+  static String initRoute = AppRoutes.auth;
 
   static Route generate(RouteSettings settings) {
     const duration = Duration(milliseconds: 1000);
