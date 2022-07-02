@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:proweb_send/domain/providers/auth_provider.dart';
-import 'package:proweb_send/ui/app_navigator/app_routes.dart';
+import 'package:proweb_send/ui/router/app_routes.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -18,9 +18,11 @@ class HomePage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        
         onPressed: () async {
-          // Navigator.pushNamed(context, AppRoutes.second);
-          await authModel.phoneModel.auth();
+          Navigator.pushNamed(context, AppRoutes.authStart);
+          // await authModel.phoneModel.auth();
+
         },
       ),
     );
