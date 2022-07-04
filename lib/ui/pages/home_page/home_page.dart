@@ -35,7 +35,7 @@ class HomePage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-            if(state.language?.languageCode == 'ru') {
+            if(state.language.languageCode == 'ru') {
               model.add(const SwitchLanguage(Locale('en')));
             } else {
               model.add(const SwitchLanguage(Locale('ru')));
