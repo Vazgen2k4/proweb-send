@@ -24,10 +24,10 @@ groups:
     package: res
     types: [ .svg ]
 
-  - path: assets/gifs
-    class_name: AppGifs
+  - path: assets/animation
+    class_name: AppAnimate
     package: res
-    types: [ .gif, .mp4 ]
+    types: [ .riv ]
 
 
     

@@ -1,28 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:proweb_send/domain/providers/auth_provider.dart';
-import 'package:proweb_send/ui/router/app_routes.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:proweb_send/domain/bloc/settings/settings_bloc.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final authModel = Provider.of<AuthProvider>(context);
+    final model = context.read<SettingsBloc>();
+    final state = model.state as SettingsBlocLoded;
 
+    
     return Scaffold(
-      appBar: AppBar(title: const Text('Home Page')),
-      body: Center(
-        child: TextField(
-          controller: authModel.phoneModel.phoneController,
+      appBar: AppBar(
+        title: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onLongPress: () async {
+              model.add(SetTheme(!state.theme.isDark));
+            },
+            child: Text(
+              '${state.language.languageCode} -- ${state.theme.isDark ? "To light" : "To dark"}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 19,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
         ),
       ),
+      body: const Center(
+        child: TextField(),
+      ),
       floatingActionButton: FloatingActionButton(
-        
         onPressed: () async {
-          Navigator.pushNamed(context, AppRoutes.authStart);
-          // await authModel.phoneModel.auth();
-
+            if(state.language?.languageCode == 'ru') {
+              model.add(const SwitchLanguage(Locale('en')));
+            } else {
+              model.add(const SwitchLanguage(Locale('ru')));
+            }
         },
       ),
     );
