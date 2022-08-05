@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proweb_send/ui/pages/auth/auth_page.dart';
 import 'package:proweb_send/ui/pages/auth/auth_page_content.dart';
+import 'package:proweb_send/ui/pages/auth/auth_with_number.dart';
 import 'package:proweb_send/ui/pages/error_404_page/error_404_page.dart';
 import 'package:proweb_send/ui/pages/home_page/home_page.dart';
 import 'package:proweb_send/ui/router/app_routes.dart';
@@ -8,10 +9,19 @@ import 'package:proweb_send/ui/router/app_routes.dart';
 class AppNavigator {
   static String initRoute = AppRoutes.auth;
 
+  static Map<String, dynamic>? _getSplittor(String sours) {
+
+  }
+
   static Route generate(RouteSettings settings) {
     const duration = Duration(milliseconds: 1000);
+    String name = settings.name ?? '/404';
 
-    switch (settings.name) {
+    if (name.contains('?')) {
+      name = name.split('?').first;
+    }
+       
+    switch (name) {
       case (AppRoutes.home):
         return PageRouteBuilder(
           settings: settings,
@@ -33,7 +43,15 @@ class AppNavigator {
         return PageRouteBuilder(
           settings: settings,
           pageBuilder: (context, animation, secondanimation) {
-            return AuthPageContent(trsAnimation: animation);
+            return const AuthPageContent();
+          },
+          transitionDuration: duration,
+        );
+      case (AppRoutes.authCreate):
+        return PageRouteBuilder(
+          settings: settings,
+          pageBuilder: (context, animation, secondanimation) {
+            return const AuthWithNumber();
           },
           transitionDuration: duration,
         );
@@ -43,7 +61,6 @@ class AppNavigator {
           name: '/404',
           arguments: settings.arguments,
         );
-
         return MaterialPageRoute(
           settings: _settings,
           builder: (_) => const Error404Page(),

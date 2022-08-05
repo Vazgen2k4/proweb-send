@@ -1,4 +1,8 @@
 {
     "hello_title": "Welcome to",
+    "create_title": "Create Acount",
+    "number_telephone": "Telephone number",
+    "choose_country_title": "Choose a country",
+    "exit_button": "Exit",
     "start_btn_txt": "Start"
 }

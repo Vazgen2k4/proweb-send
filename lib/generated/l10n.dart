@@ -60,6 +60,46 @@ class S {
     );
   }
 
+  /// `Create Acount`
+  String get create_title {
+    return Intl.message(
+      'Create Acount',
+      name: 'create_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Telephone number`
+  String get number_telephone {
+    return Intl.message(
+      'Telephone number',
+      name: 'number_telephone',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose a country`
+  String get choose_country_title {
+    return Intl.message(
+      'Choose a country',
+      name: 'choose_country_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Exit`
+  String get exit_button {
+    return Intl.message(
+      'Exit',
+      name: 'exit_button',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Start`
   String get start_btn_txt {
     return Intl.message(

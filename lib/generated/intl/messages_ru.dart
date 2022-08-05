@@ -22,8 +22,15 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "choose_country_title":
+            MessageLookupByLibrary.simpleMessage("Выберите страну"),
+        "create_title":
+            MessageLookupByLibrary.simpleMessage("Создайте аккаунт"),
+        "exit_button": MessageLookupByLibrary.simpleMessage("Выход"),
         "hello_title":
             MessageLookupByLibrary.simpleMessage("Добро пожаловать в"),
+        "number_telephone":
+            MessageLookupByLibrary.simpleMessage("Номер телефона"),
         "start_btn_txt": MessageLookupByLibrary.simpleMessage("Начать")
       };
 }

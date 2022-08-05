@@ -12,7 +12,7 @@ class SettingsBloc extends Bloc<SettingsBlocEvent, SettingsBlocState> {
     // Ивент загрузки настроек
     on<LoadSettings>((event, emit) async {
       await Future.delayed(const Duration(seconds: 1));
-
+      
       emit(event.loded);
     });
 

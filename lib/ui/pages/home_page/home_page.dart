@@ -7,9 +7,8 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.read<SettingsBloc>();
+    final model = context.watch<SettingsBloc>();
     final state = model.state as SettingsBlocLoded;
-
     
     return Scaffold(
       appBar: AppBar(

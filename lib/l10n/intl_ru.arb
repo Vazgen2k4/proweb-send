@@ -1,4 +1,8 @@
 {
     "hello_title": "Добро пожаловать в",
+    "create_title": "Создайте аккаунт",
+    "number_telephone": "Номер телефона",
+    "choose_country_title": "Выберите страну",
+    "exit_button": "Выход",
     "start_btn_txt": "Начать"
 }
