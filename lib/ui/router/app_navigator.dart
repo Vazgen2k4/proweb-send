@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:proweb_send/ui/pages/auth/auth_login.dart';
+import 'package:proweb_send/ui/pages/auth/auth_other_page.dart';
 import 'package:proweb_send/ui/pages/auth/auth_page.dart';
 import 'package:proweb_send/ui/pages/auth/auth_page_content.dart';
-import 'package:proweb_send/ui/pages/auth/auth_with_number.dart';
+import 'package:proweb_send/ui/pages/auth/auth_create_widget.dart';
 import 'package:proweb_send/ui/pages/error_404_page/error_404_page.dart';
 import 'package:proweb_send/ui/pages/home_page/home_page.dart';
 import 'package:proweb_send/ui/router/app_routes.dart';
@@ -16,10 +18,6 @@ class AppNavigator {
   static Route generate(RouteSettings settings) {
     const duration = Duration(milliseconds: 1000);
     String name = settings.name ?? '/404';
-
-    if (name.contains('?')) {
-      name = name.split('?').first;
-    }
        
     switch (name) {
       case (AppRoutes.home):
@@ -51,7 +49,23 @@ class AppNavigator {
         return PageRouteBuilder(
           settings: settings,
           pageBuilder: (context, animation, secondanimation) {
-            return const AuthWithNumber();
+            return const AuthCreateWidget();
+          },
+          transitionDuration: duration,
+        );
+      case (AppRoutes.authLogIn):
+        return PageRouteBuilder(
+          settings: settings,
+          pageBuilder: (context, animation, secondanimation) {
+            return const AuthLogIn();
+          },
+          transitionDuration: duration,
+        );
+      case (AppRoutes.authLogInOther):
+        return PageRouteBuilder(
+          settings: settings,
+          pageBuilder: (context, animation, secondanimation) {
+            return const AuthOtherPage();
           },
           transitionDuration: duration,
         );

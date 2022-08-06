@@ -1,0 +1,61 @@
+<svg width="55"
+     height="55"
+     viewBox="0 0 55 55"
+     fill="none"
+     xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="two"
+                        x1="14.2522"
+                        y1="19.5576"
+                        x2="14.2522"
+                        y2="34.4372"
+                        gradientUnits="userSpaceOnUse">
+            <stop stop-color="#52FFAC" />
+            <stop offset="1" stop-color="#64D2FF" />
+        </linearGradient>
+        <linearGradient id="three"
+                        x1="25.3772"
+                        y1="10.2002"
+                        x2="25.3772"
+                        y2="23.8814"
+                        gradientUnits="userSpaceOnUse">
+            <stop stop-color="#52FFAC" />
+            <stop offset="1" stop-color="#64D2FF" />
+        </linearGradient>
+        <linearGradient id="one"
+                        x1="25.3138"
+                        y1="30.1191"
+                        x2="25.3138"
+                        y2="43.8004"
+                        gradientUnits="userSpaceOnUse">
+            <stop stop-color="#52FFAC" />
+            <stop offset="1" stop-color="#64D2FF" />
+        </linearGradient>
+        <linearGradient id="four"
+                        x1="35.4119"
+                        y1="23.9457"
+                        x2="35.4119"
+                        y2="39.613"
+                        gradientUnits="userSpaceOnUse">
+            <stop stop-color="#52FFAC" />
+            <stop offset="1" stop-color="#64D2FF" />
+        </linearGradient>
+        <linearGradient id="five"
+                        x1="27.654"
+                        y1="0.399902"
+                        x2="27.654"
+                        y2="54.9253"
+                        gradientUnits="userSpaceOnUse">
+            <stop stop-color="#52FFAC" />
+            <stop offset="1" stop-color="#64D2FF" />
+        </linearGradient> 
+    </defs>
+
+
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M17.4411 27C17.4411 25.9088 17.6222 24.8625 17.9459 23.8813L12.2837 19.5576C11.1802 21.7981 10.5586 24.3228 10.5586 27C10.5586 29.6752 11.1797 32.198 12.2814 34.4372L17.9404 30.1051C17.6198 29.1284 17.4411 28.086 17.4411 27Z" fill="url(#two)" />
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M27.3824 17.073C29.7531 17.073 31.8943 17.913 33.5766 19.2874L38.4707 14.4002C35.4884 11.8038 31.6649 10.2002 27.3824 10.2002C20.7338 10.2002 15.0197 14.0022 12.2837 19.5578L17.9456 23.8814C19.2502 19.9214 22.969 17.073 27.3824 17.073Z" fill="url(#three)" />
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M27.3824 36.9276C22.9693 36.9276 19.2504 34.0792 17.9458 30.1191L12.2837 34.442C15.0197 39.9983 20.7338 43.8004 27.3824 43.8004C31.4858 43.8004 35.4036 42.3432 38.3439 39.6132L32.9695 35.4584C31.453 36.4136 29.5433 36.9276 27.3824 36.9276Z" fill="url(#one)" />
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M43.4414 27.0001C43.4414 26.0074 43.2884 24.9382 43.0589 23.9457H27.3824V30.4365H36.4061C35.9549 32.6497 34.7269 34.3509 32.9695 35.4581L38.3439 39.613C41.4325 36.7465 43.4414 32.4761 43.4414 27.0001Z" fill="url(#four)" />
+    <path d="M27.6311 54.925C12.4936 54.9906 0.0467444 42.3906 0.407682 27.0015C0.746744 12.3453 12.8874 0.237488 27.9811 0.40155C42.9327 0.565613 55.303 13.0125 54.8983 28.4234C54.5155 43.014 42.4733 55.0015 27.6311 54.925ZM3.72174 27.7015C3.84205 41.4062 14.9545 51.9609 28.0795 51.7312C40.7889 51.5015 51.5623 41.1437 51.5623 27.6687C51.5623 13.964 40.3623 3.36561 27.1936 3.61717C14.4842 3.84686 3.80924 14.2375 3.72174 27.7015Z" fill="url(#five)" />
+    
+</svg>

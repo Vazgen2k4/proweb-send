@@ -38,7 +38,7 @@ class SettingsThemeOptions {
   });
 }
 
-class SettingsUserOptions {
+class SettingsUserOptions { 
   final String? id;
   final SettingsPhone phone;
   final String? name;

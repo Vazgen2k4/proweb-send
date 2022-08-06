@@ -1,8 +1,13 @@
 {
     "hello_title": "Добро пожаловать в",
     "create_title": "Создайте аккаунт",
+    "auth_title": "Авторизация",
     "number_telephone": "Номер телефона",
     "choose_country_title": "Выберите страну",
     "exit_button": "Выход",
+    "create_button": "Создать",
+    "auth_button": "Войти",
+    "have_account_link": "У меня есть аккаунт",
+    "other_auth_link": "Другие способы",
     "start_btn_txt": "Начать"
 }

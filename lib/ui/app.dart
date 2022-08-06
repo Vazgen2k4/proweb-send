@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:proweb_send/domain/bloc/settings/settings_bloc.dart';
+import 'package:proweb_send/domain/bloc/auth_cubit/auth_cubit.dart';
+import 'package:proweb_send/domain/bloc/settings_bloc/settings_bloc.dart';
 import 'package:proweb_send/generated/l10n.dart';
 import 'package:proweb_send/ui/router/app_navigator.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
@@ -26,6 +27,9 @@ class MyApp extends StatelessWidget {
             );
             return model;
           },
+        ),
+        BlocProvider<AuthCubit>(
+          create: (_) => AuthCubit(),
         ),
       ],
       child: const _AppContent(),

@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:mask_input_formatter/mask_input_formatter.dart';
 import 'package:proweb_send/generated/l10n.dart';
+import 'package:proweb_send/ui/router/app_routes.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
+import 'package:proweb_send/ui/widgets/auth/auth_button.dart';
 import 'package:proweb_send/ui/widgets/custom_app_bar/custom_app_bar.dart';
 
 import 'package:country_calling_code_picker/picker.dart';
 
-class AuthWithNumber extends StatelessWidget {
-  const AuthWithNumber({Key? key}) : super(key: key);
+class AuthCreateWidget extends StatelessWidget {
+  const AuthCreateWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +44,22 @@ class AuthWithNumber extends StatelessWidget {
             ),
             const SizedBox(height: 70),
             const Center(child: CountriCodeField()),
+            const SizedBox(height: 48),
+            AuthButton(title: S.of(context).create_button),
+            const SizedBox(height: 48),
+            AuthButton(
+              title: S.of(context).have_account_link,
+              style: AuthButtonStyle.link,
+              action: () => Navigator.pushNamed(context, AppRoutes.authLogIn),
+            ),
+            const SizedBox(height: 24),
+            AuthButton(
+              title: S.of(context).other_auth_link,
+              style: AuthButtonStyle.link,
+              action: () {
+                Navigator.pushNamed(context, AppRoutes.authLogInOther);
+              },
+            ),
           ],
         ),
       ),
@@ -77,11 +94,22 @@ class _CountriCodeFieldState extends State<CountriCodeField> {
     final country = await showCountryPickerSheet(
       context,
       heightFactor: .5,
-      title: Text(S.of(context).choose_country_title),
+      title: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Text(S.of(context).choose_country_title),
+      ),
       cornerRadius: 16,
-      cancelWidget: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Text(S.of(context).exit_button),
+      cancelWidget: InkWell(
+        onTap: () {
+          Navigator.pop(context);
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: 8.0,
+            horizontal: 16,
+          ),
+          child: Text(S.of(context).exit_button),
+        ),
       ),
     );
     if (country != null) {
@@ -109,25 +137,22 @@ class _CountriCodeFieldState extends State<CountriCodeField> {
           ),
         ),
         const SizedBox(width: 8),
-         Expanded(
+        Expanded(
           child: TextField(
-            scrollPadding: EdgeInsets.zero,
-            style:const TextStyle(
+            style: const TextStyle(
               color: AppColors.text,
               fontSize: 24,
-              height: 1,
+              height: 1.33,
             ),
             keyboardType: TextInputType.number,
             inputFormatters: [
-              MaskInputFormatter(mask: '## ### ## ##' ),
+              MaskInputFormatter(mask: '## ### ## ##'),
             ],
-            // maxLines: 1,
-            decoration:const InputDecoration(
+            decoration: const InputDecoration(
               hintText: "-- --- -- --",
               labelText: "",
               counterText: "",
               border: InputBorder.none,
-              
             ),
           ),
         ),

@@ -70,6 +70,16 @@ class S {
     );
   }
 
+  /// `Auth`
+  String get auth_title {
+    return Intl.message(
+      'Auth',
+      name: 'auth_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Telephone number`
   String get number_telephone {
     return Intl.message(
@@ -95,6 +105,46 @@ class S {
     return Intl.message(
       'Exit',
       name: 'exit_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create`
+  String get create_button {
+    return Intl.message(
+      'Create',
+      name: 'create_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log In`
+  String get auth_button {
+    return Intl.message(
+      'Log In',
+      name: 'auth_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `I've account`
+  String get have_account_link {
+    return Intl.message(
+      'I\'ve account',
+      name: 'have_account_link',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Other auth`
+  String get other_auth_link {
+    return Intl.message(
+      'Other auth',
+      name: 'other_auth_link',
       desc: '',
       args: [],
     );
