@@ -2,7 +2,9 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:proweb_send/domain/firebase/firebase_collections.dart';
 import 'package:proweb_send/domain/providers/user_data_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthState extends Equatable {
   final UserData user;
@@ -32,9 +34,94 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> _initUser() async {
     final user = await _userDataProvider.loadValue();
-    final newState = state.copyWith(user: user);
+    final _pref = await SharedPreferences.getInstance();
+
+    final _hasAuth = _pref.getBool(UserDataKeys.hasAuth) ?? false;
+
+    final newState = state.copyWith(user: user, hasAuth: _hasAuth);
     emit(newState);
   }
+
+  // Авторизация через гугл
+  Future<void> authWithGoogle() async {
+    try {
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return;
+
+      final authData = await googleUser.authentication;
+      final cred = GoogleAuthProvider.credential(
+        accessToken: authData.accessToken,
+        idToken: authData.idToken,
+      );
+
+      final _info = await FirebaseAuth.instance.signInWithCredential(cred);
+      final _userDetails = _info.user;
+
+      if (_userDetails == null) return;
+
+      final newUser = state.user.copyWith(
+        name: _userDetails.displayName,
+        email: _userDetails.email,
+        userName: _userDetails.email?.replaceAll('@gmail.com', ''),
+        phone: _userDetails.phoneNumber,
+      );
+
+      final _pref = await SharedPreferences.getInstance();
+      const _hasAuth = true;
+      await _pref.setBool(UserDataKeys.hasAuth, _hasAuth);
+
+      final newState = state.copyWith(
+        user: newUser,
+        hasAuth: _hasAuth,
+      );
+
+      await Firebasecollections.addUserTo(
+        userId: _userDetails.uid,
+        userData: newUser.toJson(),
+      );
+
+      emit(newState);
+    } catch (e) {
+      print('Произошла ошибка');
+      logOutWithGoogle();
+    }
+  }
+
+  Future<void> logOutWithGoogle() async {
+    try {
+      await _googleSignIn.disconnect();
+      await FirebaseAuth.instance.signOut();
+      final _pref = await SharedPreferences.getInstance();
+      await _pref.clear();
+
+      final newState = state.copyWith(
+        user: const UserData(),
+        hasAuth: false,
+      );
+
+      emit(newState);
+    } catch (e) {
+      print('object - log Out');
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   // Future<void> authWithPhone({String? phone}) async {
   //   if(phone == null) return;
@@ -55,25 +142,3 @@ class AuthCubit extends Cubit<AuthState> {
   //     },
   //   );
   // }
-
-  Future<void> authWithGoogle() async {
-    try {
-      final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return;
-
-      final authData = await googleUser.authentication;
-
-      final credential = GoogleAuthProvider.credential(
-        accessToken: authData.accessToken,
-        idToken: authData.idToken,
-      );
-
-      final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-
-      print(userCredential.user?.displayName);
-
-    } catch (e) {
-      print('Произошла ошибка');
-    }
-  }
-}

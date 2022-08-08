@@ -10,15 +10,21 @@ import 'package:proweb_send/ui/router/app_routes.dart';
 
 class AppNavigator {
   static String initRoute = AppRoutes.auth;
+  /*  static Map<String, WidgetBuilder> get routes {
+    return {
+      AppRoutes.home: (context) => const HomePage(),
+      AppRoutes.auth: (context) => const AuthPage(),
+      AppRoutes.authStart: (context) => const AuthPageContent(),
+      AppRoutes.authCreate: (context) => const AuthCreateWidget(),
+      AppRoutes.authLogIn: (context) => const AuthLogIn(),
+      AppRoutes.authLogInOther: (context) => const AuthOtherPage(),
+    };
+  } */
 
-  static Map<String, dynamic>? _getSplittor(String sours) {
-
-  }
-
-  static Route generate(RouteSettings settings) {
+  static Route generate(RouteSettings settings, {bool hasAuth = false}) {
     const duration = Duration(milliseconds: 1000);
     String name = settings.name ?? '/404';
-       
+
     switch (name) {
       case (AppRoutes.home):
         return PageRouteBuilder(

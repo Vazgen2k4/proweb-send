@@ -5,6 +5,7 @@ import 'package:proweb_send/domain/bloc/auth_cubit/auth_cubit.dart';
 import 'package:proweb_send/domain/bloc/settings_bloc/settings_bloc.dart';
 import 'package:proweb_send/generated/l10n.dart';
 import 'package:proweb_send/ui/router/app_navigator.dart';
+import 'package:proweb_send/ui/router/app_routes.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
 
 class MyApp extends StatelessWidget {
@@ -32,41 +33,40 @@ class MyApp extends StatelessWidget {
           create: (_) => AuthCubit(),
         ),
       ],
-      child: const _AppContent(),
+      child: const AppContent(),
     );
   }
 }
 
-class _AppContent extends StatelessWidget {
-  const _AppContent({
+class AppContent extends StatefulWidget {
+  const AppContent({
     Key? key,
   }) : super(key: key);
 
   @override
+  State<AppContent> createState() => _AppContentState();
+}
+
+class _AppContentState extends State<AppContent> {
+  @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SettingsBloc, SettingsBlocState>(
-      builder: (context, state) {
-        final Locale? _locale =
-            state is SettingsBlocLoded ? state.language : null;
+    final authState = context.watch<AuthCubit>().state;
 
-        final theme = state is SettingsBlocLoded && state.theme.isDark
-            ? ThemeData.dark()
-            : ThemeData.light();
-
-        return MaterialApp(
-          theme: ThemeData(scaffoldBackgroundColor: AppColors.bg),
-          localizationsDelegates: const [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: S.delegate.supportedLocales,
-          locale: _locale,
-          initialRoute: AppNavigator.initRoute,
-          onGenerateRoute: AppNavigator.generate,
-        );
-      },
+    return MaterialApp(
+      theme: ThemeData(scaffoldBackgroundColor: AppColors.bg),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.delegate.supportedLocales,
+      initialRoute: AppNavigator.initRoute,
+      onGenerateRoute: (settings) => AppNavigator.generate(
+        settings,
+        hasAuth: authState.hasAuth,
+      ),
+      // routes: AppNavigator.routes,
     );
   }
 }
