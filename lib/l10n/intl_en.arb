@@ -2,6 +2,7 @@
     "hello_title": "Welcome to",
     "create_title": "Create Acount",
     "auth_title": "Auth",
+    "auth_code_sms_title": "Enter code from SMS",
     "number_telephone": "Telephone number",
     "choose_country_title": "Choose a country",
     "exit_button": "Exit",

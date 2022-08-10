@@ -15,6 +15,8 @@ class AuthCheker extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
+        print('object');
+
         Navigator.pushReplacementNamed(
           context,
           routTo,

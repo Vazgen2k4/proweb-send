@@ -2,6 +2,7 @@
     "hello_title": "Добро пожаловать в",
     "create_title": "Создайте аккаунт",
     "auth_title": "Авторизация",
+    "auth_code_sms_title": "Введите код из SMS",
     "number_telephone": "Номер телефона",
     "choose_country_title": "Выберите страну",
     "exit_button": "Выход",

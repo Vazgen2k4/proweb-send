@@ -1,7 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:proweb_send/domain/firebase/firebase_collections.dart';
 import 'package:proweb_send/domain/providers/user_data_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,74 +24,73 @@ class AuthState extends Equatable {
 }
 
 class AuthCubit extends Cubit<AuthState> {
+  // Способы авторизации
+  final auth = FirebaseAuth.instance;
+  // Контроллер для записи номера телефона
+  final _userPhone = UserPhoneData();
+  UserPhoneData get userPhone => _userPhone;
   // Управление данными пользователя
   final _userDataProvider = UserDataProvider();
-  // Авторизация через гугл
-  final _googleSignIn = GoogleSignIn();
+  // Id для входа
+  String _verificationId = '';
 
+  // Передача состояния по умолчанию
   AuthCubit() : super(const AuthState(hasAuth: false, user: UserData())) {
     _initUser();
   }
 
+  // Инициализация пользователя при входе и тд
   Future<void> _initUser() async {
     final user = await _userDataProvider.loadValue();
     final _pref = await SharedPreferences.getInstance();
-
     final _hasAuth = _pref.getBool(UserDataKeys.hasAuth) ?? false;
-
     final newState = state.copyWith(user: user, hasAuth: _hasAuth);
     emit(newState);
   }
 
-  // Авторизация через гугл
-  Future<void> authWithGoogle() async {
-    try {
-      final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return;
-
-      final authData = await googleUser.authentication;
-      final cred = GoogleAuthProvider.credential(
-        accessToken: authData.accessToken,
-        idToken: authData.idToken,
-      );
-
-      final _info = await FirebaseAuth.instance.signInWithCredential(cred);
-      final _userDetails = _info.user;
-
-      if (_userDetails == null) return;
-
-      final newUser = state.user.copyWith(
-        name: _userDetails.displayName,
-        email: _userDetails.email,
-        userName: _userDetails.email?.replaceAll('@gmail.com', ''),
-        phone: _userDetails.phoneNumber,
-      );
-
-      final _pref = await SharedPreferences.getInstance();
-      const _hasAuth = true;
-      await _pref.setBool(UserDataKeys.hasAuth, _hasAuth);
-
-      final newState = state.copyWith(
-        user: newUser,
-        hasAuth: _hasAuth,
-      );
-
-      await Firebasecollections.addUserTo(
-        userId: _userDetails.uid,
-        userData: newUser.toJson(),
-      );
-
-      emit(newState);
-    } catch (e) {
-      print('Произошла ошибка');
-      logOutWithGoogle();
-    }
+  // Вход через телефон
+  Future<void> authRequestWithPhone(
+    BuildContext context, {
+    String? phone,
+  }) async {
+    if (phone == null) return;
+    await auth.verifyPhoneNumber(
+      phoneNumber: phone,
+      timeout: const Duration(minutes: 2),
+      verificationCompleted: (credential) async {
+        authConfirmWithPhone(cred: credential);
+      },
+      verificationFailed: (e) {
+        print(e.message);
+      },
+      codeSent: (String verificationID, int? resendToken) async {
+        _verificationId = verificationID;
+      },
+      codeAutoRetrievalTimeout: (String verificationID) {},
+    );
   }
 
-  Future<void> logOutWithGoogle() async {
+  // Подтверждение номера телефона через смс
+  // Так же возвращает значение того, нужно ли пользователью производить
+  // регистрацию или нет
+  Future<bool?> authConfirmWithPhone({PhoneAuthCredential? cred}) async {
+    final PhoneAuthCredential credential = PhoneAuthProvider.credential(
+      verificationId: _verificationId,
+      smsCode: userPhone.smsController.value.text,
+    );
+
+    final _info = await auth.signInWithCredential(cred ?? credential);
+
+    final _userInfo = _info.user;
+    if (_userInfo == null) return null;
+
+    return await FirebaseCollections.needRegistr(userId: _userInfo.uid);
+  }
+
+  // Выход с firebase аккаунта
+  Future<void> logOut() async {
     try {
-      await _googleSignIn.disconnect();
-      await FirebaseAuth.instance.signOut();
+      await auth.signOut();
       final _pref = await SharedPreferences.getInstance();
       await _pref.clear();
 
@@ -104,41 +104,40 @@ class AuthCubit extends Cubit<AuthState> {
       print('object - log Out');
     }
   }
-}
 
+  @override
+  Future<void> close() {
+    userPhone.dispose();
+    return super.close();
+  }
 
+  // Future<bool> _authCompleate(UserCredential _info) async {
+  //   final _userInfo = _info.user;
+  //   if (_userInfo == null) return false;
 
+  //   final need = await FirebaseCollections.needRegistr(userId: _userInfo.uid);
+  //   if (need) return true;
 
+  // final newUser = state.user.copyWith(
+  //   name: _userInfo.displayName,
+  //   email: _userInfo.email,
+  //   userName: _userInfo.email?.replaceAll('@gmail.com', ''),
+  //   phone: _userInfo.phoneNumber,
+  // );
 
+  // await FirebaseCollections.addUserTo(
+  //   userId: _userInfo.uid,
+  //   userData: newUser.toJson(),
+  // );
 
+  // final _pref = await SharedPreferences.getInstance();
+  // await _pref.setBool(UserDataKeys.hasAuth, true);
 
+  // final newState = state.copyWith(
+  //   user: newUser,
+  //   hasAuth: true,
+  // );
 
-
-
-
-
-
-
-
-
-
-
-  // Future<void> authWithPhone({String? phone}) async {
-  //   if(phone == null) return;
-  //   await FirebaseAuth.instance.verifyPhoneNumber(
-  //     phoneNumber: phone,
-  //     verificationCompleted: (credential) async {
-  //       await FirebaseAuth.instance.signInWithCredential(credential);
-  //       print('is auth');
-  //     },
-  //     verificationFailed: (e) {
-  //       print(e.message);
-  //     },
-  //     codeSent: (String verificationID, int? resendToken) {
-  //       _code = verificationID;
-  //     },
-  //     codeAutoRetrievalTimeout: (String verificationID) {
-  //       _code = verificationID;
-  //     },
-  //   );
+  // emit(newState);
   // }
+}

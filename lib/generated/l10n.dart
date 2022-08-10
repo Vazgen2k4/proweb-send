@@ -80,6 +80,16 @@ class S {
     );
   }
 
+  /// `Enter code from SMS`
+  String get auth_code_sms_title {
+    return Intl.message(
+      'Enter code from SMS',
+      name: 'auth_code_sms_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Telephone number`
   String get number_telephone {
     return Intl.message(
