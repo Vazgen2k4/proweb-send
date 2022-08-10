@@ -66,7 +66,7 @@ class _AppContentState extends State<AppContent> {
         settings,
         hasAuth: authState.hasAuth,
       ),
-      // routes: AppNavigator.routes,
+      routes: AppNavigator.routes,
     );
   }
 }

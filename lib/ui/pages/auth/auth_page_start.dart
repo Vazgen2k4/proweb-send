@@ -7,8 +7,8 @@ import 'package:proweb_send/ui/theme/app_colors.dart';
 import 'package:proweb_send/ui/widgets/auth/auth_button.dart';
 import 'package:proweb_send/ui/widgets/custom_app_bar/custom_app_bar.dart';
 
-class AuthPageContent extends StatelessWidget {
-  const AuthPageContent({
+class AuthPageStart extends StatelessWidget {
+  const AuthPageStart({
     Key? key,
   }) : super(key: key);
 
@@ -40,9 +40,7 @@ class AuthPageContent extends StatelessWidget {
               const SizedBox(height: 60.62),
               AuthButton(
                 title: S.of(context).start_btn_txt,
-                action: () {
-                  Navigator.of(context).pushNamed(AppRoutes.authCreate);
-                },
+                action: () => Navigator.pushNamed(context, AppRoutes.authLogIn),
               ),
               const SizedBox(height: 60.62),
             ],

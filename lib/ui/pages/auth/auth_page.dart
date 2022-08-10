@@ -16,9 +16,10 @@ class AuthPage extends StatefulWidget {
 
 class _AuthPageState extends State<AuthPage> {
   final duration = 5;
+
   Future<void> _toPage(bool hasAuth) async {
     final route = hasAuth ? AppRoutes.home : AppRoutes.authStart;
-
+    print(route);
     Navigator.of(context).pushReplacementNamed(route);
   }
 

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserDataProvider {
@@ -9,14 +10,12 @@ class UserDataProvider {
 
     final String? name = _pref.getString(UserDataKeys.name);
     final String? phone = _pref.getString(UserDataKeys.phone);
-    final String? countryCode = _pref.getString(UserDataKeys.countryCode);
     final String? userName = _pref.getString(UserDataKeys.userName);
     final String? email = _pref.getString(UserDataKeys.email);
     final String? descr = _pref.getString(UserDataKeys.descr);
-    final int id = _pref.getInt(UserDataKeys.id) ?? -1;
+    final String? id = _pref.getString(UserDataKeys.id);
 
     return UserData(
-      countryCode: countryCode,
       userName: userName,
       phone: phone,
       email: email,
@@ -27,63 +26,63 @@ class UserDataProvider {
   }
 
   Future<void> setValue(UserData user) async {
-    final _pref = await pref;
+    await _setData<String?>(key: UserDataKeys.id, value: user.id);
+    await _setData<String?>(key: UserDataKeys.name, value: user.name);
+    await _setData<String?>(key: UserDataKeys.phone, value: user.phone);
+    await _setData<String?>(key: UserDataKeys.userName, value: user.userName);
+    await _setData<String?>(key: UserDataKeys.descr, value: user.descr);
+    await _setData<String?>(key: UserDataKeys.email, value: user.email);
+  }
 
-    await _pref.setInt(UserDataKeys.id, user.id);
+  Future<void> _setData<T>({
+    required T value,
+    required String key,
+  }) async {
+    if (value == null) return;
 
-    await _pref.setString(UserDataKeys.name, user.name ?? 'error');
-    await _pref.setString(UserDataKeys.phone, user.phone ?? 'error');
-    await _pref.setString(UserDataKeys.userName, user.userName ?? 'error');
-    await _pref.setString(UserDataKeys.descr, user.descr ?? 'error');
-    await _pref.setString(UserDataKeys.email, user.email ?? 'error');
-    await _pref.setString(
-        UserDataKeys.countryCode, user.countryCode ?? 'error');
+    if (value is String) {
+      await (await pref).setString(key, value);
+    }
   }
 }
 
 class UserData extends Equatable {
   final String? name;
   final String? phone;
-  final String? countryCode;
   final String? userName;
   final String? email;
   final String? descr;
-  final int id;
+  final String? id;
 
   const UserData({
-    this.countryCode,
     this.userName,
     this.phone,
     this.email,
     this.descr,
     this.name,
-    this.id = -1,
+    this.id,
   });
 
-  @override
-  List<Object?> get props {
-    return [
-      name,
-      phone,
-      countryCode,
-      userName,
-      id,
-      descr,
-      email,
-    ];
+  // Конструктор который не создаёт объект а возвращает новый
+  factory UserData.fromJson(Map<String, dynamic>? json) {
+    return UserData(
+      name: json?['name'],
+      phone: json?['phone'],
+      descr: json?['descr'],
+      userName: json?['nikNameId'],
+      email: json?['email'],
+    );
   }
 
   UserData copyWith({
-    String? countryCode,
     String? userName,
     String? phone,
     String? descr,
     String? email,
     String? name,
-    int? id,
+    String? id,
   }) {
     return UserData(
-      countryCode: countryCode ?? this.countryCode,
       id: id ?? this.id,
       name: name ?? this.name,
       phone: phone ?? this.phone,
@@ -96,21 +95,51 @@ class UserData extends Equatable {
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'phone': '$countryCode$phone',
+      'phone': phone,
       'nikNameId': userName,
       'email': email,
       'descr': descr,
     };
+  }
+
+  @override
+  List<Object?> get props {
+    return [name, phone, userName, id, descr, email];
   }
 }
 
 abstract class UserDataKeys {
   static const String name = '--name--';
   static const String phone = '--phone--';
-  static const String countryCode = '--country-code--';
   static const String userName = '--user-name--';
   static const String email = '--user-email--';
   static const String descr = '--user-descr--';
   static const String id = '--id--';
   static const String hasAuth = '--auth--';
+}
+
+class UserPhoneData {
+  final _phoneController = TextEditingController();
+  TextEditingController get phoneController => _phoneController;
+  final _smsController = TextEditingController();
+  TextEditingController get smsController => _smsController;
+  String _countryCode = '';
+  String get countryCode => _countryCode;
+
+  UserPhoneData();
+
+  void dispose() {
+    _phoneController.dispose();
+    _smsController.dispose();
+  }
+
+  String get phone {
+    final _code = _countryCode.trim();
+    final _number = _phoneController.value.text.trim();
+    return _code.replaceAll(' ', '') + _number.replaceAll(' ', '');
+  }
+
+  set countryCode(String? value) {
+    _countryCode = value?.trim() ?? _countryCode;
+  }
 }

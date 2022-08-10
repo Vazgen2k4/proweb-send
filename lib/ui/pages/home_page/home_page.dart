@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> {
     const _tems = [
       NavigationDestination(
         icon: Icon(Icons.chat_outlined),
-        label: '',
+        label: '',                                     
       ),
       NavigationDestination(
         icon: Icon(Icons.perm_contact_cal_outlined),
@@ -50,6 +50,9 @@ class _HomePageState extends State<HomePage> {
     return AuthCheker(
       routTo: AppNavigator.initRoute,
       child: Scaffold(
+        floatingActionButton: FloatingActionButton(onPressed: () {
+          authCubite.logOut();
+        }),
         body: _content[indexPage],
         bottomNavigationBar: NavigationBarTheme(
           data: NavigationBarThemeData(
