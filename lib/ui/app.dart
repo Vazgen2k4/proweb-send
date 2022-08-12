@@ -5,7 +5,6 @@ import 'package:proweb_send/domain/bloc/auth_cubit/auth_cubit.dart';
 import 'package:proweb_send/domain/bloc/settings_bloc/settings_bloc.dart';
 import 'package:proweb_send/generated/l10n.dart';
 import 'package:proweb_send/ui/router/app_navigator.dart';
-import 'package:proweb_send/ui/router/app_routes.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
 
 class MyApp extends StatelessWidget {
@@ -14,6 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
+      
       providers: [
         BlocProvider(
           create: (context) {
@@ -53,6 +53,7 @@ class _AppContentState extends State<AppContent> {
     final authState = context.watch<AuthCubit>().state;
 
     return MaterialApp(
+      showSemanticsDebugger: false,
       theme: ThemeData(scaffoldBackgroundColor: AppColors.bg),
       localizationsDelegates: const [
         S.delegate,

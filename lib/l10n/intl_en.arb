@@ -10,5 +10,6 @@
     "auth_button": "Log In",
     "have_account_link": "I've account",
     "other_auth_link": "Other auth",
+    "safe_btn": "Safe",
     "start_btn_txt": "Start"
 }

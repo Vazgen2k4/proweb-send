@@ -25,6 +25,7 @@ class AuthPageLogIn extends StatelessWidget {
           child: Center(
             child: Text(
               S.of(context).create_title,
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 20,
                 height: 24 / 20,
@@ -153,6 +154,7 @@ class _CountriCodeFieldState extends State<CountriCodeField> {
               MaskInputFormatter(mask: '## ### ## ##'),
             ],
             decoration: const InputDecoration(
+              
               hintText: "-- --- -- --",
               labelText: "",
               counterText: "",

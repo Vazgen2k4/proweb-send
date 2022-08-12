@@ -13,7 +13,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar.auth({
     Key? key,
     required this.child,
-  }) : height = 160, super(key: key);
+  }) : height = 140, super(key: key);
 
 
   @override

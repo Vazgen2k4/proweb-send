@@ -37,6 +37,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "number_telephone":
             MessageLookupByLibrary.simpleMessage("Telephone number"),
         "other_auth_link": MessageLookupByLibrary.simpleMessage("Other auth"),
+        "safe_btn": MessageLookupByLibrary.simpleMessage("Safe"),
         "start_btn_txt": MessageLookupByLibrary.simpleMessage("Start")
       };
 }

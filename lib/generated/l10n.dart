@@ -160,6 +160,16 @@ class S {
     );
   }
 
+  /// `Safe`
+  String get safe_btn {
+    return Intl.message(
+      'Safe',
+      name: 'safe_btn',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Start`
   String get start_btn_txt {
     return Intl.message(

@@ -1,14 +1,15 @@
 {
     "hello_title": "Добро пожаловать в",
-    "create_title": "Создайте аккаунт",
+    "create_title": "Начните общение в\nPROCHAT!",
     "auth_title": "Авторизация",
     "auth_code_sms_title": "Введите код из SMS",
     "number_telephone": "Номер телефона",
     "choose_country_title": "Выберите страну",
     "exit_button": "Выход",
-    "create_button": "Создать",
+    "create_button": "Подтвердить ",
     "auth_button": "Войти",
     "have_account_link": "У меня есть аккаунт",
     "other_auth_link": "Другие способы",
+    "safe_btn": "Сохранить",
     "start_btn_txt": "Начать"
 }

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -141,5 +142,29 @@ class UserPhoneData {
 
   set countryCode(String? value) {
     _countryCode = value?.trim() ?? _countryCode;
+  }
+}
+
+class UserCreateData {
+  final _nameController = TextEditingController();
+  TextEditingController get nameController => _nameController;
+  final _descrController = TextEditingController();
+  TextEditingController get descrController => _descrController;
+  final _userNameController = TextEditingController();
+  TextEditingController get userNameController => _userNameController;
+
+  UserCreateData();
+
+  void dispose() {
+    _nameController.dispose();
+    _descrController.dispose();
+    _userNameController.dispose();
+  }
+
+  Future<PlatformFile?> selectImage() async {
+    final res = await FilePicker.platform.pickFiles(type: FileType.image);
+    if (res == null) return null;
+
+    return res.files.first;
   }
 }

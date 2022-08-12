@@ -28,9 +28,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "auth_title": MessageLookupByLibrary.simpleMessage("Авторизация"),
         "choose_country_title":
             MessageLookupByLibrary.simpleMessage("Выберите страну"),
-        "create_button": MessageLookupByLibrary.simpleMessage("Создать"),
+        "create_button": MessageLookupByLibrary.simpleMessage("Подтвердить "),
         "create_title":
-            MessageLookupByLibrary.simpleMessage("Создайте аккаунт"),
+            MessageLookupByLibrary.simpleMessage("Начните общение в\nPROCHAT!"),
         "exit_button": MessageLookupByLibrary.simpleMessage("Выход"),
         "have_account_link":
             MessageLookupByLibrary.simpleMessage("У меня есть аккаунт"),
@@ -40,6 +40,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Номер телефона"),
         "other_auth_link":
             MessageLookupByLibrary.simpleMessage("Другие способы"),
+        "safe_btn": MessageLookupByLibrary.simpleMessage("Сохранить"),
         "start_btn_txt": MessageLookupByLibrary.simpleMessage("Начать")
       };
 }

@@ -1,3 +1,4 @@
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -29,6 +30,9 @@ class AuthCubit extends Cubit<AuthState> {
   // Контроллер для записи номера телефона
   final _userPhone = UserPhoneData();
   UserPhoneData get userPhone => _userPhone;
+  // Контроллер для записи номера телефона
+  final _userCreate = UserCreateData();
+  UserCreateData get userCreate => _userCreate;
   // Управление данными пользователя
   final _userDataProvider = UserDataProvider();
   // Id для входа
@@ -74,17 +78,24 @@ class AuthCubit extends Cubit<AuthState> {
   // Так же возвращает значение того, нужно ли пользователью производить
   // регистрацию или нет
   Future<bool?> authConfirmWithPhone({PhoneAuthCredential? cred}) async {
-    final PhoneAuthCredential credential = PhoneAuthProvider.credential(
-      verificationId: _verificationId,
-      smsCode: userPhone.smsController.value.text,
-    );
+    try {
+      final sms = userPhone.smsController.value.text.trim().replaceAll(' ', '');
 
-    final _info = await auth.signInWithCredential(cred ?? credential);
+      final credential = PhoneAuthProvider.credential(
+        verificationId: _verificationId,
+        smsCode: sms,
+      );
 
-    final _userInfo = _info.user;
-    if (_userInfo == null) return null;
+      final _info = await auth.signInWithCredential(cred ?? credential);
 
-    return await FirebaseCollections.needRegistr(userId: _userInfo.uid);
+      final _userInfo = _info.user;
+      if (_userInfo == null) return null;
+
+      return await FirebaseCollections.needRegistr(userId: _userInfo.uid);
+    } catch (e) {
+      logOut();
+      return null;
+    }
   }
 
   // Выход с firebase аккаунта
@@ -105,39 +116,14 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  @override
-  Future<void> close() {
-    userPhone.dispose();
-    return super.close();
+  Future<void> createAccount() async {
+     
   }
 
-  // Future<bool> _authCompleate(UserCredential _info) async {
-  //   final _userInfo = _info.user;
-  //   if (_userInfo == null) return false;
-
-  //   final need = await FirebaseCollections.needRegistr(userId: _userInfo.uid);
-  //   if (need) return true;
-
-  // final newUser = state.user.copyWith(
-  //   name: _userInfo.displayName,
-  //   email: _userInfo.email,
-  //   userName: _userInfo.email?.replaceAll('@gmail.com', ''),
-  //   phone: _userInfo.phoneNumber,
-  // );
-
-  // await FirebaseCollections.addUserTo(
-  //   userId: _userInfo.uid,
-  //   userData: newUser.toJson(),
-  // );
-
-  // final _pref = await SharedPreferences.getInstance();
-  // await _pref.setBool(UserDataKeys.hasAuth, true);
-
-  // final newState = state.copyWith(
-  //   user: newUser,
-  //   hasAuth: true,
-  // );
-
-  // emit(newState);
-  // }
+  @override
+  Future<void> close() {
+    _userCreate.dispose();
+    _userPhone.dispose();
+    return super.close();
+  }
 }
