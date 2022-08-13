@@ -1,19 +1,25 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:proweb_send/domain/bloc/auth_cubit/auth_cubit.dart';
+import 'package:proweb_send/domain/providers/user_data_provider.dart';
 import 'package:proweb_send/generated/l10n.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
 import 'package:proweb_send/ui/widgets/auth/auth_button.dart';
 import 'package:proweb_send/ui/widgets/custom_app_bar/custom_app_bar.dart';
 
-class RegisterPage extends StatelessWidget {
+class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
 
   @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  UserCreateErros errors = const UserCreateErros();
+
+  @override
   Widget build(BuildContext context) {
-    final authCubit = context.read<AuthCubit>();
+    // final authCubit = context.read<AuthCubit>();
 
     return Scaffold(
       appBar: const CustomAppBar.auth(
@@ -42,23 +48,38 @@ class RegisterPage extends StatelessWidget {
                 const ChoseImageWidget(),
                 const SizedBox(height: 50),
                 RefisterInputsWidget(
+                  hasError: errors.nameEmpty,
                   placeholder: 'Имя',
-                  controller: authCubit.userCreate.nameController,
+                  // controller: authCubit.userCreate.nameController,
+                  controller: TextEditingController(),
                 ),
                 const SizedBox(height: 30),
                 RefisterInputsWidget(
-                  controller: authCubit.userCreate.userNameController,
+                  hasError: errors.userNameBusy || errors.userNameEmpty,
+                  // controller: authCubit.userCreate.userNameController,
+                  controller: TextEditingController(),
                   placeholder: 'Никнейм',
                   maxLength: 19,
                 ),
                 const SizedBox(height: 30),
                 RefisterInputsWidget(
-                  controller: authCubit.userCreate.descrController,
+                  // controller: authCubit.userCreate.descrController,
+                  controller: TextEditingController(),
                   placeholder: 'О себе',
                   maxLength: 300,
                 ),
                 const SizedBox(height: 56),
-                AuthButton(title: S.of(context).safe_btn),
+                AuthButton(
+                  title: S.of(context).safe_btn,
+                  action: () async {
+                    // errors = await authCubit.checkErrors();
+                    // if(!errors.hasErrors) {
+                    //   await authCubit.createAccount();
+                    // }
+
+                    // setState(() {});
+                  },
+                ),
               ],
             ),
           ),
@@ -81,14 +102,14 @@ class _ChoseImageWidgetState extends State<ChoseImageWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final authCubit = context.read<AuthCubit>();
+    // final authCubit = context.read<AuthCubit>();
 
     return GestureDetector(
       onTap: () async {
-        final file = await authCubit.userCreate.selectImage();
-        if(file == null) return;
-        imgPath = file.path;
-        setState(() {});
+        // final file = await authCubit.userCreate.selectImage();
+        // if (file == null) return;
+        // imgPath = file.path;
+        // setState(() {});
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(widget.radius),
@@ -121,11 +142,13 @@ class RefisterInputsWidget extends StatefulWidget {
   final TextEditingController controller;
   final int? maxLength;
   final String? placeholder;
+  final bool hasError;
   const RefisterInputsWidget({
     Key? key,
     required this.controller,
     this.maxLength,
     this.placeholder,
+    this.hasError = false,
   }) : super(key: key);
 
   @override
@@ -133,11 +156,14 @@ class RefisterInputsWidget extends StatefulWidget {
 }
 
 class _RefisterInputsWidgetState extends State<RefisterInputsWidget> {
+  Color? color;
+
   @override
   void initState() {
     widget.controller.addListener(() {
       setState(() {});
     });
+    color = widget.hasError ? AppColors.error : AppColors.text;
     super.initState();
   }
 
@@ -152,13 +178,14 @@ class _RefisterInputsWidgetState extends State<RefisterInputsWidget> {
           if (widget.maxLength != null)
             Text(
               '${widget.controller.value.text.length}/${widget.maxLength}',
-              style: const TextStyle(
-                color: AppColors.text,
+              style: TextStyle(
+                color: color,
                 fontSize: 14,
                 height: 1,
               ),
             ),
           TextField(
+            textCapitalization: TextCapitalization.sentences,
             maxLength: widget.maxLength,
             style: const TextStyle(
               color: Color(0xff646464),
@@ -171,6 +198,7 @@ class _RefisterInputsWidgetState extends State<RefisterInputsWidget> {
                 vertical: 13,
                 horizontal: 16,
               ),
+              errorText: widget.hasError ? ' ' : null,
               counterText: '',
               filled: true,
               fillColor: AppColors.text,
@@ -182,6 +210,13 @@ class _RefisterInputsWidgetState extends State<RefisterInputsWidget> {
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(
+                  color: AppColors.error,
+                  width: 2,
+                ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),

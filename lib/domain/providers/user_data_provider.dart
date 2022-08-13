@@ -152,6 +152,8 @@ class UserCreateData {
   TextEditingController get descrController => _descrController;
   final _userNameController = TextEditingController();
   TextEditingController get userNameController => _userNameController;
+  PlatformFile? _img;
+  PlatformFile? get img => _img;
 
   UserCreateData();
 
@@ -164,7 +166,36 @@ class UserCreateData {
   Future<PlatformFile?> selectImage() async {
     final res = await FilePicker.platform.pickFiles(type: FileType.image);
     if (res == null) return null;
-
-    return res.files.first;
+    _img = res.files.first;
+    return _img;
   }
+}
+
+class UserCreateErros extends Equatable {
+  final bool userNameBusy;
+  final bool userNameEmpty;
+  final bool nameEmpty;
+
+  const UserCreateErros({
+    this.nameEmpty = false,
+    this.userNameBusy = false,
+    this.userNameEmpty = false,
+  });
+
+  @override
+  List<Object?> get props => [nameEmpty, userNameBusy, userNameEmpty];
+
+  UserCreateErros copyWith({
+    bool? nameEmpty,
+    bool? userNameBusy,
+    bool? userNameEmpty,
+  }) {
+    return UserCreateErros(
+      nameEmpty: nameEmpty ?? this.nameEmpty,
+      userNameBusy: userNameBusy ?? this.userNameBusy,
+      userNameEmpty: userNameEmpty ?? this.userNameEmpty,
+    );
+  }
+
+  bool get hasErrors => userNameBusy || nameEmpty || userNameEmpty;
 }

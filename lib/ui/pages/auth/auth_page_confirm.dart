@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mask_input_formatter/mask_input_formatter.dart';
 import 'package:provider/provider.dart';
-import 'package:proweb_send/domain/bloc/auth_cubit/auth_cubit.dart';
 import 'package:proweb_send/generated/l10n.dart';
 import 'package:proweb_send/ui/router/app_routes.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
@@ -13,7 +12,7 @@ class AuthPageConfirm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authCubit = context.read<AuthCubit>();
+    // final authCubit = context.read<AuthCubit>();
 
     return Scaffold(
      appBar: CustomAppBar.auth(
@@ -85,18 +84,18 @@ class AuthPageConfirm extends StatelessWidget {
                     ),
                     contentPadding: EdgeInsets.symmetric(vertical: 20),
                   ),
-                  controller: authCubit.userPhone.smsController,
+                  // controller: authCubit.userPhone.smsController,
                 ),
               ),
               const SizedBox(height: 48),
               AuthButton(
                 title: S.of(context).create_button,
                 action: () async {
-                  final needRegist = await authCubit.authConfirmWithPhone();
-                  if (needRegist == null) return;
-                  final route =
-                      needRegist ? AppRoutes.register : AppRoutes.home;
-                  Navigator.pushNamed(context, route);
+                  // final needRegist = await authCubit.authConfirmWithPhone();
+                  // if (needRegist == null) return;
+                  // final route =
+                  //     needRegist ? AppRoutes.register : AppRoutes.home;
+                  // Navigator.pushNamed(context, route);
                 },
               ),
             ],

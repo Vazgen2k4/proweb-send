@@ -1,5 +1,5 @@
-
 import 'package:bloc/bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,12 +11,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthState extends Equatable {
   final UserData user;
   final bool hasAuth;
-  const AuthState({required this.hasAuth, required this.user});
+  const AuthState({
+    required this.hasAuth,
+    required this.user,
+  });
 
   @override
-  List<Object> get props => [hasAuth, user];
+  List<Object> get props => [
+        hasAuth,
+        user,
+      ];
 
-  AuthState copyWith({UserData? user, bool? hasAuth}) {
+  AuthState copyWith({
+    UserData? user,
+    bool? hasAuth,
+    UserCreateErros? erros,
+  }) {
     return AuthState(
       hasAuth: hasAuth ?? this.hasAuth,
       user: user ?? this.user,
@@ -39,7 +49,11 @@ class AuthCubit extends Cubit<AuthState> {
   String _verificationId = '';
 
   // Передача состояния по умолчанию
-  AuthCubit() : super(const AuthState(hasAuth: false, user: UserData())) {
+  AuthCubit()
+      : super(const AuthState(
+          hasAuth: false,
+          user: UserData(),
+        )) {
     _initUser();
   }
 
@@ -117,7 +131,44 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> createAccount() async {
-     
+    final uid = auth.currentUser?.uid;
+    if (uid == null) return;
+
+    final data = UserData(
+      name: _userCreate.nameController.value.text,
+      userName: _userCreate.userNameController.value.text,
+      descr: _userCreate.descrController.value.text,
+      phone: _userPhone.phone,
+    ).toJson();
+
+    await FirebaseCollections.addUserTo(userId: uid, userData: data);
+
+    final _pref = await SharedPreferences.getInstance();
+    await _pref.setBool(UserDataKeys.hasAuth, true);
+    emit(state.copyWith(hasAuth: true));
+  }
+
+  Future<UserCreateErros> checkErrors() async {
+    final users = await FirebaseFirestore.instance
+        .collection(FirebaseCollections.usersPath)
+        .get();
+
+    final nikNameId =
+        _userCreate.userNameController.value.text.trim().replaceAll(' ', '_');
+    final name =
+        _userCreate.nameController.value.text.trim().replaceAll(' ', '_');
+
+    final _userNameEmpty = nikNameId.isEmpty;
+    final _nameEmpty = name.isEmpty;
+    final _userNameBusy = users.docs.any((user) {
+      return user.data()['nikNameId'] == nikNameId;
+    });
+
+    return UserCreateErros(
+      nameEmpty: _nameEmpty,
+      userNameBusy: _userNameBusy,
+      userNameEmpty: _userNameEmpty,
+    );
   }
 
   @override

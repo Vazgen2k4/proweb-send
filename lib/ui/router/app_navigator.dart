@@ -21,7 +21,7 @@ class AppNavigator {
     };
   }
 
-  static Route generate(RouteSettings settings, {bool hasAuth = false}) {
+  static Route generate(RouteSettings settings) {
     final _settings = RouteSettings(
       name: '/404',
       arguments: settings.arguments,

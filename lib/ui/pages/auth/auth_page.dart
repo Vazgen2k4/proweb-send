@@ -1,8 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:proweb_send/domain/bloc/auth_cubit/auth_cubit.dart';
 import 'package:proweb_send/resources/resources.dart';
 import 'package:proweb_send/ui/router/app_routes.dart';
 import 'package:rive/rive.dart';
@@ -20,13 +18,13 @@ class _AuthPageState extends State<AuthPage> {
   Future<void> _toPage(bool hasAuth) async {
     final route = hasAuth ? AppRoutes.home : AppRoutes.authStart;
     print(route);
-    Navigator.of(context).pushReplacementNamed(route);
+    Navigator.of(context).pushNamed(route);
   }
 
   @override
   Widget build(BuildContext context) {
-    final authState = context.watch<AuthCubit>().state;
-    Timer(Duration(seconds: duration), () => _toPage(authState.hasAuth));
+    // final authState = context.watch<AuthCubit>().state;
+    // Timer(Duration(seconds: duration), () => _toPage(authState.hasAuth));
     return const RiveAnimation.asset(AppAnimate.prev);
   }
 }
