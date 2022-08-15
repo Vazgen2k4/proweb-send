@@ -120,6 +120,16 @@ class S {
     );
   }
 
+  /// `Продолжить`
+  String get continue_button {
+    return Intl.message(
+      'Продолжить',
+      name: 'continue_button',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Create`
   String get create_button {
     return Intl.message(
@@ -135,26 +145,6 @@ class S {
     return Intl.message(
       'Log In',
       name: 'auth_button',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `I've account`
-  String get have_account_link {
-    return Intl.message(
-      'I\'ve account',
-      name: 'have_account_link',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Other auth`
-  String get other_auth_link {
-    return Intl.message(
-      'Other auth',
-      name: 'other_auth_link',
       desc: '',
       args: [],
     );

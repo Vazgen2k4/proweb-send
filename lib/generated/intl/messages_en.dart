@@ -28,15 +28,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "auth_title": MessageLookupByLibrary.simpleMessage("Auth"),
         "choose_country_title":
             MessageLookupByLibrary.simpleMessage("Choose a country"),
+        "continue_button": MessageLookupByLibrary.simpleMessage("Продолжить"),
         "create_button": MessageLookupByLibrary.simpleMessage("Create"),
         "create_title": MessageLookupByLibrary.simpleMessage("Create Acount"),
         "exit_button": MessageLookupByLibrary.simpleMessage("Exit"),
-        "have_account_link":
-            MessageLookupByLibrary.simpleMessage("I\'ve account"),
         "hello_title": MessageLookupByLibrary.simpleMessage("Welcome to"),
         "number_telephone":
             MessageLookupByLibrary.simpleMessage("Telephone number"),
-        "other_auth_link": MessageLookupByLibrary.simpleMessage("Other auth"),
         "safe_btn": MessageLookupByLibrary.simpleMessage("Safe"),
         "start_btn_txt": MessageLookupByLibrary.simpleMessage("Start")
       };

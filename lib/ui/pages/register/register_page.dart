@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:proweb_send/domain/providers/user_data_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:proweb_send/domain/bloc/auth_bloc/auth_bloc.dart';
 import 'package:proweb_send/generated/l10n.dart';
+import 'package:proweb_send/ui/router/app_routes.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
 import 'package:proweb_send/ui/widgets/auth/auth_button.dart';
 import 'package:proweb_send/ui/widgets/custom_app_bar/custom_app_bar.dart';
@@ -15,14 +17,10 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  UserCreateErros errors = const UserCreateErros();
-
   @override
   Widget build(BuildContext context) {
-    // final authCubit = context.read<AuthCubit>();
-
-    return Scaffold(
-      appBar: const CustomAppBar.auth(
+    return const Scaffold(
+      appBar: CustomAppBar.auth(
         child: Center(
           child: SizedBox(
             width: 319,
@@ -40,51 +38,71 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsets.symmetric(vertical: 16),
+          physics: BouncingScrollPhysics(),
           child: Center(
-            child: Column(
-              children: <Widget>[
-                const ChoseImageWidget(),
-                const SizedBox(height: 50),
-                RefisterInputsWidget(
-                  hasError: errors.nameEmpty,
-                  placeholder: 'Имя',
-                  // controller: authCubit.userCreate.nameController,
-                  controller: TextEditingController(),
-                ),
-                const SizedBox(height: 30),
-                RefisterInputsWidget(
-                  hasError: errors.userNameBusy || errors.userNameEmpty,
-                  // controller: authCubit.userCreate.userNameController,
-                  controller: TextEditingController(),
-                  placeholder: 'Никнейм',
-                  maxLength: 19,
-                ),
-                const SizedBox(height: 30),
-                RefisterInputsWidget(
-                  // controller: authCubit.userCreate.descrController,
-                  controller: TextEditingController(),
-                  placeholder: 'О себе',
-                  maxLength: 300,
-                ),
-                const SizedBox(height: 56),
-                AuthButton(
-                  title: S.of(context).safe_btn,
-                  action: () async {
-                    // errors = await authCubit.checkErrors();
-                    // if(!errors.hasErrors) {
-                    //   await authCubit.createAccount();
-                    // }
-
-                    // setState(() {});
-                  },
-                ),
-              ],
-            ),
+            child: RegisterForm(),
           ),
         ),
       ),
+    );
+  }
+}
+
+class RegisterForm extends StatelessWidget {
+  const RegisterForm({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        final newState = state as AuthLoaded;
+        final errors = newState.erros;
+
+        return Column(
+          children: <Widget>[
+            const ChoseImageWidget(),
+            const SizedBox(height: 50),
+            RefisterInputsWidget(
+              hasError: errors.nameEmpty,
+              placeholder: 'Имя',
+              controller: AuthLoaded.userController.nameController,
+            ),
+            const SizedBox(height: 30),
+            RefisterInputsWidget(
+              hasError: errors.userNameBusy || errors.userNameEmpty,
+              controller: AuthLoaded.userController.userNikNameController,
+              placeholder: 'Никнейм',
+              maxLength: 19,
+            ),
+            const SizedBox(height: 30),
+            RefisterInputsWidget(
+              controller: AuthLoaded.userController.descrController,
+              placeholder: 'О себе',
+              maxLength: 300,
+            ),
+            const SizedBox(height: 56),
+            AuthButton(
+              title: S.of(context).safe_btn,
+              action: () async {
+                final authBloc = context.read<AuthBloc>();
+
+                authBloc.add(AuthCreateCheckErrorsAndRegister(
+                  onSuccess: () {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      AppRoutes.auth,
+                      (route) => false,
+                    );
+                  },
+                ));
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -102,14 +120,14 @@ class _ChoseImageWidgetState extends State<ChoseImageWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // final authCubit = context.read<AuthCubit>();
+    final userController = AuthLoaded.userController;
 
     return GestureDetector(
       onTap: () async {
-        // final file = await authCubit.userCreate.selectImage();
-        // if (file == null) return;
-        // imgPath = file.path;
-        // setState(() {});
+        final file = await userController.selectImage();
+        if (file == null) return;
+        imgPath = file.path;
+        setState(() {});
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(widget.radius),

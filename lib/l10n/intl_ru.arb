@@ -6,10 +6,9 @@
     "number_telephone": "Номер телефона",
     "choose_country_title": "Выберите страну",
     "exit_button": "Выход",
-    "create_button": "Подтвердить ",
+    "continue_button": "Продолжить",
+    "create_button": "Подтвердить",
     "auth_button": "Войти",
-    "have_account_link": "У меня есть аккаунт",
-    "other_auth_link": "Другие способы",
     "safe_btn": "Сохранить",
     "start_btn_txt": "Начать"
 }

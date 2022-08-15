@@ -1,9 +1,12 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:mask_input_formatter/mask_input_formatter.dart';
-import 'package:provider/provider.dart';
+import 'package:proweb_send/domain/bloc/auth_bloc/auth_bloc.dart';
+import 'package:proweb_send/domain/firebase/firebase_collections.dart';
 import 'package:proweb_send/generated/l10n.dart';
 import 'package:proweb_send/ui/router/app_routes.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
+import 'package:proweb_send/ui/widgets/app_hero_tags.dart';
 import 'package:proweb_send/ui/widgets/auth/auth_button.dart';
 import 'package:proweb_send/ui/widgets/custom_app_bar/custom_app_bar.dart';
 
@@ -12,10 +15,32 @@ class AuthPageConfirm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final authCubit = context.read<AuthCubit>();
+    void confirm() async {
+      final authBloc = context.read<AuthBloc>();
+      final state = authBloc.state;
+
+      if (state is! AuthLoaded) return;
+
+      authBloc.add(
+        AuthVerifirePhone(
+          onSuccess: () async {
+            final needCreate = await FirebaseCollections.needRegistr(
+              userId: AuthLoaded.userController.uid,
+            );
+
+            if (needCreate == null) return;
+
+            Navigator.pushNamed(
+              context,
+              needCreate ? AppRoutes.register : AppRoutes.auth,
+            );
+          },
+        ),
+      );
+    }
 
     return Scaffold(
-     appBar: CustomAppBar.auth(
+      appBar: CustomAppBar.auth(
         child: Center(
           child: Text(
             S.of(context).create_title,
@@ -84,19 +109,16 @@ class AuthPageConfirm extends StatelessWidget {
                     ),
                     contentPadding: EdgeInsets.symmetric(vertical: 20),
                   ),
-                  // controller: authCubit.userPhone.smsController,
+                  controller: AuthLoaded.userController.smsController,
                 ),
               ),
               const SizedBox(height: 48),
-              AuthButton(
-                title: S.of(context).create_button,
-                action: () async {
-                  // final needRegist = await authCubit.authConfirmWithPhone();
-                  // if (needRegist == null) return;
-                  // final route =
-                  //     needRegist ? AppRoutes.register : AppRoutes.home;
-                  // Navigator.pushNamed(context, route);
-                },
+              Hero(
+                tag: AppHeroTags.authBtn,
+                child: AuthButton(
+                  title: S.of(context).create_button,
+                  action: confirm,
+                ),
               ),
             ],
           ),

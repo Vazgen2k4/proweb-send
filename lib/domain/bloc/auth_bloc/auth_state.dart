@@ -13,42 +13,34 @@ class AuthLoaded extends AuthState {
   static final auth = FirebaseAuth.instance;
   static PhoneAuthCredential? credential;
   static String? verificationid;
+  static final userController = ProUserController();
 
   final bool hasAuth;
+  final bool needRegister;
   final ProUser user;
+  final ProUserErros erros;
 
   const AuthLoaded({
     required this.hasAuth,
+    required this.needRegister,
     required this.user,
+    required this.erros,
   });
 
   @override
-  List<Object> get props => [hasAuth, user];
-}
+  List<Object> get props => [hasAuth, user, needRegister, erros];
 
-
-class UserPhoneData {
-  final _phoneController = TextEditingController();
-  TextEditingController get phoneController => _phoneController;
-  final _smsController = TextEditingController();
-  TextEditingController get smsController => _smsController;
-  String _countryCode = '';
-  String get countryCode => _countryCode;
-
-  UserPhoneData();
-
-  void dispose() {
-    _phoneController.dispose();
-    _smsController.dispose();
-  }
-
-  String get phone {
-    final _code = _countryCode.trim();
-    final _number = _phoneController.value.text.trim();
-    return _code.replaceAll(' ', '') + _number.replaceAll(' ', '');
-  }
-
-  set countryCode(String? value) {
-    _countryCode = value?.trim() ?? _countryCode;
+  AuthLoaded copyWith({
+    bool? hasAuth,
+    bool? needRegister,
+    ProUser? user,
+    ProUserErros? erros,
+  }) {
+    return AuthLoaded(
+      hasAuth: hasAuth ?? this.hasAuth,
+      user: user ?? this.user,
+      needRegister: needRegister ?? this.needRegister,
+      erros: erros ?? this.erros,
+    );
   }
 }

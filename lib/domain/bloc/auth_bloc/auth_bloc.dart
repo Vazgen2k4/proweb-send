@@ -1,13 +1,14 @@
-import 'dart:html';
+// ignore_for_file: avoid_print
+
+import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:proweb_send/domain/firebase/firebase_collections.dart';
 import 'package:proweb_send/domain/models/pro_user.dart';
-import 'package:proweb_send/domain/providers/user_data_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -17,8 +18,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoadAuth>(_loadAuth);
     on<AuthWithPhone>(_authWithPhone);
     on<AuthVerifirePhone>(_authVerifirePhone);
-    on<AuthCreateAccount>(_authCreateAccount);
-    on<AuthLogInAccount>(_authLogInAccount);
+    // on<AuthCreateAccount>(_authCreateAccount);
+    on<AuthCreateCheckErrorsAndRegister>(_authCreateCheckErrorsAndRegister);
+    on<AuthLogOut>((_, emit) => _logOut(emit));
   }
 
   Future<void> _loadAuth(
@@ -26,34 +28,62 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     final auth = FirebaseAuth.instance.currentUser;
-    final pref = await SharedPreferences.getInstance();
+    print(auth?.uid);
 
-    final _hasAuth = pref.getBool(UserDataKeys.hasAuth);
+    final _hasAuth = auth != null;
+    final needRegister =
+        await FirebaseCollections.needRegistr(userId: auth?.uid);
 
-    emit(AuthLoaded(hasAuth: _hasAuth ?? false, user: const ProUser()));
+    final need = needRegister ?? false;
+
+    if (need) {
+      await Future.delayed(
+        const Duration(seconds: 5),
+      );
+    }
+
+    emit(
+      AuthLoaded(
+        hasAuth: _hasAuth,
+        user: ProUser(id: auth?.uid),
+        needRegister: need,
+        erros: const ProUserErros(),
+      ),
+    );
   }
 
   Future<void> _authWithPhone(
     AuthWithPhone event,
     Emitter<AuthState> emit,
   ) async {
-    if (state is AuthLoaded) {
+    if (state is! AuthLoaded) return;
+
+    try {
+      print(AuthLoaded.userController.phone);
       await AuthLoaded.auth.verifyPhoneNumber(
-        phoneNumber: event.phone,
+        phoneNumber: AuthLoaded.userController.phone,
         timeout: const Duration(minutes: 2),
         verificationCompleted: (credential) async {
           AuthLoaded.credential = credential;
         },
         verificationFailed: (e) {
-          print('=' * 19);
+          print('=' * 91);
           print(e.message);
           print('=' * 19);
+          event.onFailed != null ? event.onFailed!() : 0;
         },
         codeSent: (String verificationID, int? resendToken) async {
           AuthLoaded.verificationid = verificationID;
+          print('[object] - send code');
+          print(AuthLoaded.verificationid);
+          event.onSuccess != null ? event.onSuccess!() : 0;
         },
-        codeAutoRetrievalTimeout: (String verificationID) {},
+        codeAutoRetrievalTimeout: (String verificationID) {
+          print('time out');
+        },
       );
+    } catch (e) {
+      await _logOut(emit);
     }
   }
 
@@ -61,34 +91,161 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthVerifirePhone event,
     Emitter<AuthState> emit,
   ) async {
-    if (state is AuthLoaded) {
+    try {
+      if (this.state is! AuthLoaded) return;
+
       final state = this.state as AuthLoaded;
+      // Только для (Android), Если телефон сам прочитал sms код
       final authCredential = AuthLoaded.credential;
       if (authCredential != null) {
-        await AuthLoaded.auth.signInWithCredential(authCredential);
+        final userCredential =
+            await AuthLoaded.auth.signInWithCredential(authCredential);
+
+        final needRegister = await FirebaseCollections.needRegistr(
+            userId: userCredential.user?.uid);
+
+        final newState = state.copyWith(
+          hasAuth: true,
+          user: state.user.copyWith(
+            id: userCredential.user?.uid,
+            phone: AuthLoaded.userController.phone,
+          ),
+          needRegister: needRegister,
+        );
+        AuthLoaded.userController.uid = newState.user.id;
+
+        emit(newState);
+
+        event.onSuccess != null ? event.onSuccess!() : 0;
         return;
       }
 
+      // Если был введен код в ручную)
       final verId = AuthLoaded.verificationid;
-
       if (verId != null) {
+        final sms = AuthLoaded.userController.smsController.value.text;
+        print(sms.replaceAll(' ', ''));
+
         final cred = PhoneAuthProvider.credential(
           verificationId: verId,
-          smsCode: event.sms,
+          smsCode: sms.replaceAll(' ', ''),
         );
 
-         await AuthLoaded.auth.signInWithCredential(cred);
+        final userCredential = await AuthLoaded.auth.signInWithCredential(cred);
+
+        print("id ---- ${userCredential.user?.uid}");
+
+        final needRegister = await FirebaseCollections.needRegistr(
+            userId: userCredential.user?.uid);
+
+        final newState = state.copyWith(
+          hasAuth: true,
+          user: state.user.copyWith(
+            id: userCredential.user?.uid,
+            phone: AuthLoaded.userController.phone,
+          ),
+          needRegister: needRegister,
+        );
+        AuthLoaded.userController.uid = newState.user.id;
+        emit(newState);
+        event.onSuccess != null ? event.onSuccess!() : 0;
+        return;
       }
+
+      event.onFailed != null ? event.onFailed!() : 0;
+    } catch (e) {
+      event.onFailed != null ? event.onFailed!() : 0;
+
+      await _logOut(emit);
     }
   }
 
-  Future<void> _authCreateAccount(
-    AuthCreateAccount event,
+  Future<void> _authCreateCheckErrorsAndRegister(
+    AuthCreateCheckErrorsAndRegister event,
     Emitter<AuthState> emit,
-  ) async {}
+  ) async {
+    try {
+      if (state is! AuthLoaded) return;
 
-  Future<void> _authLogInAccount(
-    AuthLogInAccount event,
-    Emitter<AuthState> emit,
-  ) async {}
+      final newState = state as AuthLoaded;
+
+      final _userController = AuthLoaded.userController;
+      final _name =
+          _userController.nameController.value.text.replaceAll(' ', '');
+      final _nikName =
+          _userController.userNikNameController.value.text.replaceAll(' ', '');
+
+      final isBusy = await FirebaseCollections.busyNikName(nikNameId: _nikName);
+
+      final _errors = ProUserErros(
+        nameEmpty: _name.isEmpty,
+        userNameEmpty: _nikName.isEmpty,
+        userNameBusy: isBusy,
+      );
+
+      if (_errors.hasErrors) {
+        emit(newState.copyWith(erros: _errors));
+        return;
+      }
+
+      final imgFile = _userController.img;
+
+      String? imgUrl;
+
+      if (imgFile != null) {
+        final path = 'users/avatars/$_nikName';
+        final ref = FirebaseStorage.instance.ref().child(path);
+        final file = File(imgFile.path!);
+        await ref.putFile(file);
+
+        imgUrl = await ref.getDownloadURL();
+      }
+
+      final curentUser = newState.user.copyWith(
+        name: _name,
+        nikNameId: _nikName,
+        descr: _userController.descrController.value.text.trim(),
+        imagePath: imgUrl,
+      );
+
+      final uid = AuthLoaded.auth.currentUser?.uid;
+
+      await FirebaseCollections.addUserTo(
+        userId: uid,
+        userData: curentUser.toJson(),
+      );
+
+      emit(newState.copyWith(
+        user: curentUser,
+        erros: _errors,
+        hasAuth: true,
+        needRegister: false,
+      ));
+
+      event.onSuccess != null ? event.onSuccess!() : 0;
+    } catch (e) {
+      _logOut(emit);
+    }
+  }
+
+  Future<void> _logOut(Emitter<AuthState> emit) async {
+    try {
+      if (this.state is! AuthLoaded) return;
+      final state = this.state as AuthLoaded;
+
+      await AuthLoaded.auth.signOut();
+
+      final newState = state.copyWith(
+        hasAuth: false,
+        user: const ProUser(),
+      );
+
+      print('object - log Out');
+
+      AuthLoaded.userController.clear();
+      emit(newState);
+    } catch (e) {
+      print('object - log Out');
+    }
+  }
 }

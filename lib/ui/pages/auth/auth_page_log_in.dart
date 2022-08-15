@@ -1,8 +1,13 @@
+import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:country_calling_code_picker/picker.dart';
 import 'package:flutter/material.dart';
 import 'package:mask_input_formatter/mask_input_formatter.dart';
+import 'package:proweb_send/domain/bloc/auth_bloc/auth_bloc.dart';
 import 'package:proweb_send/generated/l10n.dart';
+import 'package:proweb_send/ui/router/app_routes.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
+import 'package:proweb_send/ui/widgets/app_hero_tags.dart';
 import 'package:proweb_send/ui/widgets/auth/auth_button.dart';
 import 'package:proweb_send/ui/widgets/auth/country_code_btn.dart';
 import 'package:proweb_send/ui/widgets/custom_app_bar/custom_app_bar.dart';
@@ -12,18 +17,23 @@ class AuthPageLogIn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: CustomAppBar.auth(
         child: Center(
-          child: Text(
-            S.of(context).create_title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 20,
-              height: 24 / 20,
-              letterSpacing: 1,
-              color: AppColors.text,
+          child: Hero(
+            tag: AppHeroTags.authTitle,
+            child: Material(
+              color: Colors.transparent,
+              child: Text(
+                S.of(context).create_title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 20,
+                  height: 24 / 20,
+                  letterSpacing: 1,
+                  color: AppColors.text,
+                ),
+              ),
             ),
           ),
         ),
@@ -46,14 +56,20 @@ class AuthPageLogIn extends StatelessWidget {
             const SizedBox(height: 70),
             const CountriCodeField(),
             const SizedBox(height: 48),
-            AuthButton(
-              title: S.of(context).create_button,
-              action: () async {
-                // final phone = authCubit.userPhone.phone;
-                // if (phone.length < 7) return;
-                // await authCubit.authRequestWithPhone(context, phone: phone);
-                // Navigator.pushNamed(context, AppRoutes.authConfirm);
-              },
+            Hero(
+              tag: AppHeroTags.authBtn,
+              child: AuthButton(
+                title: S.of(context).continue_button,
+                action: () async {
+                  context.read<AuthBloc>().add(
+                    AuthWithPhone(
+                      onSuccess: () {
+                        Navigator.pushNamed(context, AppRoutes.authConfirm);
+                      },
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -116,9 +132,10 @@ class _CountriCodeFieldState extends State<CountriCodeField> {
 
   @override
   Widget build(BuildContext context) {
-    // final authCubit = context.read<AuthCubit>();
     final country = _selectedCountry;
-    // authCubit.userPhone.countryCode = country?.callingCode;
+    final proUserController = AuthLoaded.userController;
+    proUserController.countryCode = country?.callingCode;
+
     List<Widget> _children = [];
 
     if (country != null) {
@@ -135,7 +152,7 @@ class _CountriCodeFieldState extends State<CountriCodeField> {
         const SizedBox(width: 8),
         Expanded(
           child: TextField(
-            // controller: authCubit.userPhone.phoneController,
+            controller: proUserController.phoneController,
             style: const TextStyle(
               color: AppColors.text,
               fontSize: 24,
@@ -146,7 +163,6 @@ class _CountriCodeFieldState extends State<CountriCodeField> {
               MaskInputFormatter(mask: '## ### ## ##'),
             ],
             decoration: const InputDecoration(
-              
               hintText: "-- --- -- --",
               labelText: "",
               counterText: "",

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:proweb_send/domain/bloc/auth_bloc/auth_bloc.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
+
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -16,7 +19,7 @@ class _HomePageState extends State<HomePage> {
     const _tems = [
       NavigationDestination(
         icon: Icon(Icons.chat_outlined),
-        label: '',                                     
+        label: '',
       ),
       NavigationDestination(
         icon: Icon(Icons.perm_contact_cal_outlined),
@@ -40,11 +43,11 @@ class _HomePageState extends State<HomePage> {
       ),
     ];
 
-    // final authCubite = context.watch<AuthCubit>();
+    final authBloc = context.read<AuthBloc>();
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(onPressed: () {
-        // authCubite.logOut();
+        authBloc.add(const AuthLogOut());
       }),
       body: _content[indexPage],
       bottomNavigationBar: NavigationBarTheme(

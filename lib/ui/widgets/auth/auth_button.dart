@@ -67,7 +67,9 @@ class AuthButton extends StatelessWidget {
     return Center(
       child: ConstrainedBox(
         constraints: _constrain,
+        
         child: TextButton(
+          
           style: isBtn ? _btnStyle : _linkStyle,
           onPressed: action,
           child: Text(

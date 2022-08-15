@@ -8,46 +8,51 @@ abstract class AuthEvent extends Equatable {
 }
 
 class LoadAuth extends AuthEvent {
-  final bool hasAuth;
-
-  const LoadAuth({required this.hasAuth});
+  const LoadAuth();
 
   @override
-  List<Object?> get props => [hasAuth];
+  List<Object?> get props => [];
 }
 
 class AuthWithPhone extends AuthEvent {
-  final String phone;
-
-  const AuthWithPhone({required this.phone});
+  final VoidCallback? onSuccess;
+  final VoidCallback? onFailed;
+  const AuthWithPhone({this.onSuccess, this.onFailed});
 
   @override
-  List<Object> get props => [phone];
+  List<Object?> get props => [onFailed, onSuccess];
 }
 
 class AuthVerifirePhone extends AuthEvent {
-  final String sms;
-
-  const AuthVerifirePhone({required this.sms});
+  final VoidCallback? onSuccess;
+  final VoidCallback? onFailed;
+  const AuthVerifirePhone({this.onSuccess, this.onFailed});
 
   @override
-  List<Object> get props => [sms];
+  List<Object?> get props => [onFailed, onSuccess];
 }
 
-class AuthCreateAccount extends AuthEvent {
-  final PlatformFile? image;
-  final ProUser user;
+// class AuthCreateAccount extends AuthEvent {
+//   final PlatformFile? image;
+//   final ProUser user;
 
-  const AuthCreateAccount({this.image, required this.user});
+//   const AuthCreateAccount({this.image, required this.user});
+
+//   @override
+//   List<Object?> get props => [image, user];
+// }
+
+class AuthCreateCheckErrorsAndRegister extends AuthEvent {
+  final VoidCallback? onSuccess;
+  const AuthCreateCheckErrorsAndRegister({this.onSuccess});
 
   @override
-  List<Object?> get props => [image, user];
+  List<Object?> get props => [onSuccess];
 }
 
-class AuthLogInAccount extends AuthEvent {
-  final ProUser user;
-  const AuthLogInAccount({required this.user});
+class AuthLogOut extends AuthEvent {
+  const AuthLogOut();
 
   @override
-  List<Object?> get props => [user];
+  List<Object?> get props => [];
 }
