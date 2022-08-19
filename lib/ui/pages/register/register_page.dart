@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +6,7 @@ import 'package:proweb_send/generated/l10n.dart';
 import 'package:proweb_send/ui/router/app_routes.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
 import 'package:proweb_send/ui/widgets/auth/auth_button.dart';
+import 'package:proweb_send/ui/widgets/choos_image/choose_image.dart';
 import 'package:proweb_send/ui/widgets/custom_app_bar/custom_app_bar.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -107,54 +107,6 @@ class RegisterForm extends StatelessWidget {
   }
 }
 
-class ChoseImageWidget extends StatefulWidget {
-  final double radius;
-  const ChoseImageWidget({Key? key, this.radius = 50}) : super(key: key);
-
-  @override
-  State<ChoseImageWidget> createState() => _ChoseImageWidgetState();
-}
-
-class _ChoseImageWidgetState extends State<ChoseImageWidget> {
-  String? imgPath;
-
-  @override
-  Widget build(BuildContext context) {
-    final userController = AuthLoaded.userController;
-
-    return GestureDetector(
-      onTap: () async {
-        final file = await userController.selectImage();
-        if (file == null) return;
-        imgPath = file.path;
-        setState(() {});
-      },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(widget.radius),
-        child: CircleAvatar(
-          backgroundColor: const Color(0xffd9d9d9),
-          backgroundImage: imgPath == null ? null : FileImage(File(imgPath!)),
-          radius: widget.radius,
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              width: double.infinity,
-              height: widget.radius,
-              alignment: Alignment.center,
-              decoration:
-                  const BoxDecoration(color: Color.fromRGBO(3, 3, 3, .5)),
-              child: const Icon(
-                Icons.photo_camera_rounded,
-                color: AppColors.text,
-                size: 31,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class RefisterInputsWidget extends StatefulWidget {
   final TextEditingController controller;

@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:country_calling_code_picker/picker.dart';
 import 'package:flutter/material.dart';

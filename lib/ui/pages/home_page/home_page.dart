@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:proweb_send/domain/bloc/auth_bloc/auth_bloc.dart';
+import 'package:proweb_send/ui/pages/settings/settings_page.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,14 +34,12 @@ class _HomePageState extends State<HomePage> {
 
     final _content = <Widget>[
       Container(
-        color: Colors.red,
-      ),
-      Container(
         color: Colors.green,
       ),
       Container(
         color: Colors.purple,
       ),
+      const SettingsPage(),
     ];
 
     final authBloc = context.read<AuthBloc>();

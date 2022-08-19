@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -42,10 +43,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
     }
 
+    final _user = !need
+        ? ProUser.fromJson((await FirebaseFirestore.instance
+                .collection(FirebaseCollections.usersPath)
+                .doc(auth?.uid)
+                .get())
+            .data())
+        : ProUser(id: auth?.uid);
+
     emit(
       AuthLoaded(
         hasAuth: _hasAuth,
-        user: ProUser(id: auth?.uid),
+        user: _user,
         needRegister: need,
         erros: const ProUserErros(),
       ),
@@ -138,15 +147,28 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         final needRegister = await FirebaseCollections.needRegistr(
             userId: userCredential.user?.uid);
 
+        final curentUser = needRegister == false
+            ? ProUser.fromJson((await FirebaseFirestore.instance
+                    .collection(FirebaseCollections.usersPath)
+                    .doc(userCredential.user?.uid)
+                    .get())
+                .data())
+            : state.user;
+
         final newState = state.copyWith(
           hasAuth: true,
-          user: state.user.copyWith(
+          user: curentUser.copyWith(
             id: userCredential.user?.uid,
             phone: AuthLoaded.userController.phone,
           ),
           needRegister: needRegister,
         );
         AuthLoaded.userController.uid = newState.user.id;
+
+        print(newState.user.nikNameId);
+        print(newState.user.name);
+        print(newState.user.phone);
+
         emit(newState);
         event.onSuccess != null ? event.onSuccess!() : 0;
         return;

@@ -22,7 +22,7 @@ class AuthPage extends StatelessWidget {
         }
 
         if (state.needRegister) {
-          return RegisterPage();
+          return const RegisterPage();
         }
         return const AuthPageStart();
       },
