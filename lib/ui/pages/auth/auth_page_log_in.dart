@@ -3,6 +3,7 @@ import 'package:country_calling_code_picker/picker.dart';
 import 'package:flutter/material.dart';
 import 'package:mask_input_formatter/mask_input_formatter.dart';
 import 'package:proweb_send/domain/bloc/auth_bloc/auth_bloc.dart';
+import 'package:proweb_send/domain/models/pro_user.dart';
 import 'package:proweb_send/generated/l10n.dart';
 import 'package:proweb_send/ui/router/app_routes.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
@@ -132,7 +133,7 @@ class _CountriCodeFieldState extends State<CountriCodeField> {
   @override
   Widget build(BuildContext context) {
     final country = _selectedCountry;
-    final proUserController = AuthLoaded.userController;
+    final proUserController = ProUser.controller;
     proUserController.countryCode = country?.callingCode;
 
     List<Widget> _children = [];

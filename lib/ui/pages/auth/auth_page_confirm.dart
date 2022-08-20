@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:mask_input_formatter/mask_input_formatter.dart';
 import 'package:proweb_send/domain/bloc/auth_bloc/auth_bloc.dart';
 import 'package:proweb_send/domain/firebase/firebase_collections.dart';
+import 'package:proweb_send/domain/models/pro_user.dart';
 import 'package:proweb_send/generated/l10n.dart';
 import 'package:proweb_send/ui/router/app_routes.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
@@ -25,7 +27,7 @@ class AuthPageConfirm extends StatelessWidget {
         AuthVerifirePhone(
           onSuccess: () async {
             final needCreate = await FirebaseCollections.needRegistr(
-              userId: AuthLoaded.userController.uid,
+              userId: FirebaseAuth.instance.currentUser?.uid,
             );
 
             if (needCreate == null) return;
@@ -109,7 +111,7 @@ class AuthPageConfirm extends StatelessWidget {
                     ),
                     contentPadding: EdgeInsets.symmetric(vertical: 20),
                   ),
-                  controller: AuthLoaded.userController.smsController,
+                  controller: ProUser.controller.smsController,
                 ),
               ),
               const SizedBox(height: 48),

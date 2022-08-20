@@ -1,12 +1,14 @@
 import 'package:equatable/equatable.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:proweb_send/generated/l10n.dart';
 
 class ProUser extends Equatable {
+  static final controller = ProUserController();
+
   final String? name;
   final String? phone;
   final String? nikNameId;
-  final String? email;
   final String? descr;
   final String? imagePath;
   final String? id;
@@ -15,7 +17,6 @@ class ProUser extends Equatable {
     this.nikNameId,
     this.phone,
     this.imagePath,
-    this.email,
     this.descr,
     this.name,
     this.id,
@@ -28,7 +29,7 @@ class ProUser extends Equatable {
       phone: json?['phone'],
       descr: json?['descr'],
       nikNameId: json?['nikNameId'],
-      email: json?['email'],
+      // email: json?['email'],
     );
   }
 
@@ -47,7 +48,7 @@ class ProUser extends Equatable {
       phone: phone ?? this.phone,
       nikNameId: nikNameId ?? this.nikNameId,
       descr: descr ?? this.descr,
-      email: email ?? this.email,
+      // email: email ?? this.email,
       imagePath: imagePath ?? this.imagePath,
     );
   }
@@ -57,15 +58,22 @@ class ProUser extends Equatable {
       'name': name,
       'phone': phone,
       'nikNameId': nikNameId,
-      'email': email,
       'descr': descr,
       'imagePath': imagePath,
     };
   }
 
+  Map<String, String?> toDataInfo(BuildContext context) {
+    return {
+      S.of(context).number_telephone: phone,
+      S.of(context).nik_name: nikNameId,
+      S.of(context).bio: descr,
+    };
+  }
+
   @override
   List<Object?> get props {
-    return [name, phone, nikNameId, id, descr, email, imagePath];
+    return [name, phone, nikNameId, id, descr, imagePath];
   }
 }
 
@@ -98,8 +106,11 @@ class ProUserController {
 
   // Гетер уже готового номера телефона
   String get phone {
+
     final _code = _countryCode.trim();
     final _number = _phoneController.value.text.trim();
+    print(_code);
+    print(_number);
     return _code.replaceAll(' ', '') + _number.replaceAll(' ', '');
   }
 
@@ -123,15 +134,15 @@ class ProUserController {
     _smsController.clear();
   }
 
-  // // Полное ОТКЛЮЧЕНИЕ всех кнтроллеров
-  // void dispose() {
-  //   _nameController.dispose();
-  //   _descrController.dispose();
-  //   _userNikNameController.dispose();
+  // Полное ОТКЛЮЧЕНИЕ всех кнтроллеров
+  void dispose() {
+    _nameController.dispose();
+    _descrController.dispose();
+    _userNikNameController.dispose();
 
-  //   _phoneController.dispose();
-  //   _smsController.dispose();
-  // }
+    _phoneController.dispose();
+    _smsController.dispose();
+  }
 
   // Выбор изображения из галлереи и не только
   Future<PlatformFile?> selectImage() async {

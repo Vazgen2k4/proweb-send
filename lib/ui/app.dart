@@ -36,10 +36,12 @@ class AppContent extends StatefulWidget {
 class _AppContentState extends State<AppContent> {
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       showSemanticsDebugger: false,
-      theme: ThemeData(scaffoldBackgroundColor: AppColors.bg),
+      theme: ThemeData(
+        scaffoldBackgroundColor: AppColors.bg,
+        useMaterial3: true,
+      ),
       localizationsDelegates: const [
         S.delegate,
         GlobalMaterialLocalizations.delegate,

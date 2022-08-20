@@ -26,15 +26,18 @@ class MessageLookup extends MessageLookupByLibrary {
         "auth_code_sms_title":
             MessageLookupByLibrary.simpleMessage("Введите код из SMS"),
         "auth_title": MessageLookupByLibrary.simpleMessage("Авторизация"),
+        "bio": MessageLookupByLibrary.simpleMessage("О себе"),
         "choose_country_title":
             MessageLookupByLibrary.simpleMessage("Выберите страну"),
         "continue_button": MessageLookupByLibrary.simpleMessage("Продолжить"),
         "create_button": MessageLookupByLibrary.simpleMessage("Подтвердить"),
         "create_title":
             MessageLookupByLibrary.simpleMessage("Начните общение в\nPROCHAT!"),
+        "email": MessageLookupByLibrary.simpleMessage("Электронная почта"),
         "exit_button": MessageLookupByLibrary.simpleMessage("Выход"),
         "hello_title":
             MessageLookupByLibrary.simpleMessage("Добро пожаловать в"),
+        "nik_name": MessageLookupByLibrary.simpleMessage("Никнейм"),
         "number_telephone":
             MessageLookupByLibrary.simpleMessage("Номер телефона"),
         "safe_btn": MessageLookupByLibrary.simpleMessage("Сохранить"),

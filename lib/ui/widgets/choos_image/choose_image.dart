@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:proweb_send/domain/bloc/auth_bloc/auth_bloc.dart';
+import 'package:proweb_send/domain/models/pro_user.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
 
 class ChoseImageWidget extends StatefulWidget {
@@ -29,11 +29,10 @@ class _ChoseImageWidgetState extends State<ChoseImageWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final userController = AuthLoaded.userController;
+    final userController = ProUser.controller;
 
     return GestureDetector(
       onTap: () async {
-        print(1);
         final file = await userController.selectImage();
         if (file == null) return;
         imgPath = file.path;

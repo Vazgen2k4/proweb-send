@@ -100,6 +100,36 @@ class S {
     );
   }
 
+  /// `Email`
+  String get email {
+    return Intl.message(
+      'Email',
+      name: 'email',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nik name`
+  String get nik_name {
+    return Intl.message(
+      'Nik name',
+      name: 'nik_name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Bio`
+  String get bio {
+    return Intl.message(
+      'Bio',
+      name: 'bio',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Choose a country`
   String get choose_country_title {
     return Intl.message(

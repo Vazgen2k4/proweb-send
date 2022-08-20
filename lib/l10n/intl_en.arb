@@ -4,6 +4,12 @@
     "auth_title": "Auth",
     "auth_code_sms_title": "Enter code from SMS",
     "number_telephone": "Telephone number",
+    "email": "Email",
+    "nik_name": "Nik name",
+    "bio": "Bio",
+
+
+
     "choose_country_title": "Choose a country",
     "exit_button": "Exit",
     "continue_button": "Продолжить",

@@ -26,13 +26,16 @@ class MessageLookup extends MessageLookupByLibrary {
         "auth_code_sms_title":
             MessageLookupByLibrary.simpleMessage("Enter code from SMS"),
         "auth_title": MessageLookupByLibrary.simpleMessage("Auth"),
+        "bio": MessageLookupByLibrary.simpleMessage("Bio"),
         "choose_country_title":
             MessageLookupByLibrary.simpleMessage("Choose a country"),
         "continue_button": MessageLookupByLibrary.simpleMessage("Продолжить"),
         "create_button": MessageLookupByLibrary.simpleMessage("Create"),
         "create_title": MessageLookupByLibrary.simpleMessage("Create Acount"),
+        "email": MessageLookupByLibrary.simpleMessage("Email"),
         "exit_button": MessageLookupByLibrary.simpleMessage("Exit"),
         "hello_title": MessageLookupByLibrary.simpleMessage("Welcome to"),
+        "nik_name": MessageLookupByLibrary.simpleMessage("Nik name"),
         "number_telephone":
             MessageLookupByLibrary.simpleMessage("Telephone number"),
         "safe_btn": MessageLookupByLibrary.simpleMessage("Safe"),

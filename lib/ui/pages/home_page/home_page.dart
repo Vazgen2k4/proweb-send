@@ -14,41 +14,57 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int indexPage = 0;
+  final pageController = PageController();
+  final _items = const [
+    NavigationDestination(
+      icon: Icon(Icons.chat_outlined),
+      label: '',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.perm_contact_cal_outlined),
+      label: '',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.settings_outlined),
+      label: '',
+    ),
+  ];
+  late final List<Widget> _content;
 
   @override
-  Widget build(BuildContext context) {
-    const _tems = [
-      NavigationDestination(
-        icon: Icon(Icons.chat_outlined),
-        label: '',
-      ),
-      NavigationDestination(
-        icon: Icon(Icons.perm_contact_cal_outlined),
-        label: '',
-      ),
-      NavigationDestination(
-        icon: Icon(Icons.settings_outlined),
-        label: '',
-      ),
-    ];
-
-    final _content = <Widget>[
+  void initState() {
+    _content = [
       Container(
         color: Colors.green,
       ),
       Container(
         color: Colors.purple,
       ),
-      const SettingsPage(),
+      SettingsPage(pageController: pageController),
     ];
 
+    // pageController.addListener(() {
+    //   indexPage = pageController.page!.toInt();
+    // });
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authBloc = context.read<AuthBloc>();
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(onPressed: () {
         authBloc.add(const AuthLogOut());
       }),
-      body: _content[indexPage],
+      body: PageView.builder(
+        onPageChanged: _pageChange,
+        controller: pageController,
+        physics: const NeverScrollableScrollPhysics(),
+        itemBuilder: (context, index) => _content[index],
+        itemCount: _content.length,
+      ),
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
           height: 80,
@@ -62,11 +78,21 @@ class _HomePageState extends State<HomePage> {
         ),
         child: NavigationBar(
           backgroundColor: AppColors.elementsPrimary,
-          destinations: _tems,
+          destinations: _items,
           selectedIndex: indexPage,
-          onDestinationSelected: (v) => setState(() => indexPage = v),
+          onDestinationSelected: _pageChange,
         ),
       ),
     );
+  }
+
+  void _pageChange(int index) async {
+    
+   pageController.jumpToPage(
+      index,
+    );
+    setState(() {
+      indexPage = index;
+    });
   }
 }

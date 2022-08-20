@@ -1,9 +1,6 @@
-// ignore_for_file: avoid_print
-
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -15,11 +12,14 @@ part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
+  String? userBlocVerificationId;
+  PhoneAuthCredential? userBlocCredential;
+  final auth = FirebaseAuth.instance;
+
   AuthBloc() : super(AuthInitial()) {
     on<LoadAuth>(_loadAuth);
     on<AuthWithPhone>(_authWithPhone);
     on<AuthVerifirePhone>(_authVerifirePhone);
-    // on<AuthCreateAccount>(_authCreateAccount);
     on<AuthCreateCheckErrorsAndRegister>(_authCreateCheckErrorsAndRegister);
     on<AuthLogOut>((_, emit) => _logOut(emit));
   }
@@ -29,7 +29,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     final auth = FirebaseAuth.instance.currentUser;
-    print(auth?.uid);
 
     final _hasAuth = auth != null;
     final needRegister =
@@ -43,18 +42,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
     }
 
-    final _user = !need
-        ? ProUser.fromJson((await FirebaseFirestore.instance
-                .collection(FirebaseCollections.usersPath)
-                .doc(auth?.uid)
-                .get())
-            .data())
-        : ProUser(id: auth?.uid);
-
     emit(
       AuthLoaded(
         hasAuth: _hasAuth,
-        user: _user,
         needRegister: need,
         erros: const ProUserErros(),
       ),
@@ -68,27 +58,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     if (state is! AuthLoaded) return;
 
     try {
-      print(AuthLoaded.userController.phone);
-      await AuthLoaded.auth.verifyPhoneNumber(
-        phoneNumber: AuthLoaded.userController.phone,
+      await auth.verifyPhoneNumber(
+        phoneNumber: ProUser.controller.phone,
         timeout: const Duration(minutes: 2),
         verificationCompleted: (credential) async {
-          AuthLoaded.credential = credential;
+          userBlocCredential = credential;
         },
         verificationFailed: (e) {
-          print('=' * 91);
-          print(e.message);
-          print('=' * 19);
           event.onFailed != null ? event.onFailed!() : 0;
         },
         codeSent: (String verificationID, int? resendToken) async {
-          AuthLoaded.verificationid = verificationID;
-          print('[object] - send code');
-          print(AuthLoaded.verificationid);
+          userBlocVerificationId = verificationID;
           event.onSuccess != null ? event.onSuccess!() : 0;
         },
         codeAutoRetrievalTimeout: (String verificationID) {
-          print('time out');
         },
       );
     } catch (e) {
@@ -102,26 +85,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     try {
       if (this.state is! AuthLoaded) return;
-
       final state = this.state as AuthLoaded;
-      // Только для (Android), Если телефон сам прочитал sms код
-      final authCredential = AuthLoaded.credential;
+
+      final authCredential = userBlocCredential;
       if (authCredential != null) {
-        final userCredential =
-            await AuthLoaded.auth.signInWithCredential(authCredential);
+        final userCredential = await auth.signInWithCredential(authCredential);
 
         final needRegister = await FirebaseCollections.needRegistr(
-            userId: userCredential.user?.uid);
+          userId: userCredential.user?.uid,
+        );
 
         final newState = state.copyWith(
           hasAuth: true,
-          user: state.user.copyWith(
-            id: userCredential.user?.uid,
-            phone: AuthLoaded.userController.phone,
-          ),
           needRegister: needRegister,
         );
-        AuthLoaded.userController.uid = newState.user.id;
 
         emit(newState);
 
@@ -130,44 +107,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
 
       // Если был введен код в ручную)
-      final verId = AuthLoaded.verificationid;
+      final verId = userBlocVerificationId;
       if (verId != null) {
-        final sms = AuthLoaded.userController.smsController.value.text;
-        print(sms.replaceAll(' ', ''));
+        final sms = ProUser.controller.smsController.value.text;
 
         final cred = PhoneAuthProvider.credential(
           verificationId: verId,
           smsCode: sms.replaceAll(' ', ''),
         );
 
-        final userCredential = await AuthLoaded.auth.signInWithCredential(cred);
-
-        print("id ---- ${userCredential.user?.uid}");
+        final userCredential = await auth.signInWithCredential(cred);
 
         final needRegister = await FirebaseCollections.needRegistr(
-            userId: userCredential.user?.uid);
-
-        final curentUser = needRegister == false
-            ? ProUser.fromJson((await FirebaseFirestore.instance
-                    .collection(FirebaseCollections.usersPath)
-                    .doc(userCredential.user?.uid)
-                    .get())
-                .data())
-            : state.user;
+          userId: userCredential.user?.uid,
+        );
 
         final newState = state.copyWith(
           hasAuth: true,
-          user: curentUser.copyWith(
-            id: userCredential.user?.uid,
-            phone: AuthLoaded.userController.phone,
-          ),
           needRegister: needRegister,
         );
-        AuthLoaded.userController.uid = newState.user.id;
-
-        print(newState.user.nikNameId);
-        print(newState.user.name);
-        print(newState.user.phone);
 
         emit(newState);
         event.onSuccess != null ? event.onSuccess!() : 0;
@@ -191,7 +149,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       final newState = state as AuthLoaded;
 
-      final _userController = AuthLoaded.userController;
+      final _userController = ProUser.controller;
       final _name =
           _userController.nameController.value.text.replaceAll(' ', '');
       final _nikName =
@@ -223,14 +181,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         imgUrl = await ref.getDownloadURL();
       }
 
-      final curentUser = newState.user.copyWith(
+      final curentUser = ProUser(
+        phone: ProUser.controller.phone,
         name: _name,
         nikNameId: _nikName,
         descr: _userController.descrController.value.text.trim(),
         imagePath: imgUrl,
       );
 
-      final uid = AuthLoaded.auth.currentUser?.uid;
+      final uid = auth.currentUser?.uid;
 
       await FirebaseCollections.addUserTo(
         userId: uid,
@@ -238,7 +197,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
 
       emit(newState.copyWith(
-        user: curentUser,
         erros: _errors,
         hasAuth: true,
         needRegister: false,
@@ -255,19 +213,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (this.state is! AuthLoaded) return;
       final state = this.state as AuthLoaded;
 
-      await AuthLoaded.auth.signOut();
+      await auth.signOut();
 
-      final newState = state.copyWith(
-        hasAuth: false,
-        user: const ProUser(),
-      );
+      final newState = state.copyWith(hasAuth: false);
 
-      print('object - log Out');
-
-      AuthLoaded.userController.clear();
+      ProUser.controller.clear();
       emit(newState);
     } catch (e) {
-      print('object - log Out');
+      // ignore: avoid_print
+      print('Error [object] - log Out');
     }
   }
 }

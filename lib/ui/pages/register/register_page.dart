@@ -1,7 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:proweb_send/domain/bloc/auth_bloc/auth_bloc.dart';
+import 'package:proweb_send/domain/models/pro_user.dart';
 import 'package:proweb_send/generated/l10n.dart';
 import 'package:proweb_send/ui/router/app_routes.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
@@ -68,18 +68,18 @@ class RegisterForm extends StatelessWidget {
             RefisterInputsWidget(
               hasError: errors.nameEmpty,
               placeholder: 'Имя',
-              controller: AuthLoaded.userController.nameController,
+              controller: ProUser.controller.nameController,
             ),
             const SizedBox(height: 30),
             RefisterInputsWidget(
               hasError: errors.userNameBusy || errors.userNameEmpty,
-              controller: AuthLoaded.userController.userNikNameController,
+              controller: ProUser.controller.userNikNameController,
               placeholder: 'Никнейм',
               maxLength: 19,
             ),
             const SizedBox(height: 30),
             RefisterInputsWidget(
-              controller: AuthLoaded.userController.descrController,
+              controller: ProUser.controller.descrController,
               placeholder: 'О себе',
               maxLength: 300,
             ),
@@ -106,7 +106,6 @@ class RegisterForm extends StatelessWidget {
     );
   }
 }
-
 
 class RefisterInputsWidget extends StatefulWidget {
   final TextEditingController controller;

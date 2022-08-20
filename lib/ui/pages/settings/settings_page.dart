@@ -1,209 +1,290 @@
+import 'dart:math';
+import 'dart:ui';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:proweb_send/domain/bloc/auth_bloc/auth_bloc.dart';
+import 'package:proweb_send/domain/firebase/firebase_collections.dart';
+import 'package:proweb_send/domain/models/pro_user.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
 import 'package:proweb_send/ui/widgets/choos_image/choose_image.dart';
 import 'package:proweb_send/ui/widgets/custom_app_bar/custom_app_bar.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsPage extends StatelessWidget {
-  const SettingsPage({Key? key}) : super(key: key);
-
-  // Widget titleWidget(ProUser user) {
-  //   return SingleChildScrollView(
-  //     physics: const NeverScrollableScrollPhysics(),
-  //     child: Column(
-  //       mainAxisAlignment: MainAxisAlignment.center,
-  //       children: [
-  //         const ChoseImageWidget(),
-  //         const SizedBox(height: 16),
-  //         Text(
-  //           user.name ?? '',
-  //           style: const TextStyle(
-  //             color: AppColors.text,
-  //             fontSize: 17,
-  //             letterSpacing: -.41,
-  //             height: 22 / 17,
-  //           ),
-  //         ),
-  //         const SizedBox(height: 3),
-  //         Text(
-  //           '@' + (user.nikNameId ?? ''),
-  //           style: const TextStyle(
-  //             color: AppColors.text,
-  //             fontSize: 17,
-  //             letterSpacing: -.41,
-  //             height: 22 / 17,
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
+  final PageController pageController;
+  const SettingsPage({Key? key, required this.pageController})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final authBlocState = context.watch<AuthBloc>().state as AuthLoaded;
-    final user = authBlocState.user;
-    final imgUrl = user.imagePath;
-    final img = imgUrl != null ? NetworkImage(imgUrl) : null;
+    final uid = FirebaseAuth.instance.currentUser?.uid ?? 'user-id';
 
-    return CustomScrollView(
-      physics: const BouncingScrollPhysics(
-        parent: AlwaysScrollableScrollPhysics(),
-      ),
-      slivers: <Widget>[
-        SliverAppBar(
-          leading: IconButton(onPressed: () {}, icon: Icon(Icons.arrow_back)),
-          automaticallyImplyLeading: false,
-          centerTitle: true,
-          floating: true,
-          pinned: true,
-          expandedHeight: 170,
-          // forceElevated: true,
-          snap: true,
-          flexibleSpace: FlexibleSpaceBar(
-            background: bg(),
-            stretchModes: const [
-              StretchMode.fadeTitle,
-              StretchMode.blurBackground
+    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+        stream: FirebaseFirestore.instance
+            .collection(FirebaseCollections.usersPath)
+            .doc(uid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          final data = snapshot.data;
+
+          if (!snapshot.hasData || data == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final user = ProUser.fromJson(data.data());
+          final imagePath = user.imagePath;
+          final img = imagePath != null ? NetworkImage(imagePath) : null;
+
+          return CustomScrollView(
+            slivers: <Widget>[
+              SliverAppBar(
+                leading: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.arrow_back),
+                ),
+                automaticallyImplyLeading: false,
+                centerTitle: true,
+                floating: true,
+                pinned: true,
+                expandedHeight: 170,
+                snap: true,
+                flexibleSpace: bg(
+                  opacity: 1,
+                  child: FlexibleSpaceBar(
+                    stretchModes: const [
+                      StretchMode.fadeTitle,
+                      StretchMode.blurBackground
+                    ],
+                    centerTitle: true,
+                    expandedTitleScale: 1,
+                    collapseMode: CollapseMode.pin,
+                    title: Center(
+                      child: ChoseImageWidget(
+                        radius: 40,
+                        image: img,
+                      ),
+                    ),
+                  ),
+                ),
+                forceElevated: true,
+                backgroundColor: Colors.transparent,
+                bottom: CustomAppBar(
+                  height: kToolbarHeight,
+                  child: SettingsAppBarContent(user: user),
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 36,
+                  horizontal: 16,
+                ),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate(
+                    <Widget>[
+                      UserDataSettingsWidget(
+                        user: user,
+                      )
+                    ],
+                  ),
+                ),
+              ),
             ],
-            centerTitle: true,
-            expandedTitleScale: 1,
-            collapseMode: CollapseMode.pin,
-            title: Center(
-              child: ChoseImageWidget(
-                radius: 40,
-                image: img,
-              ),
-            ),
-          ),
-
-          forceElevated: true,
-          backgroundColor: Colors.transparent,
-
-          bottom: CustomAppBar(
-            height: kToolbarHeight,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Column(
-                children: [
-                  Text(
-                    user.name ?? '',
-                    style: const TextStyle(
-                      color: AppColors.text,
-                      fontSize: 17,
-                      letterSpacing: -.41,
-                      height: 22 / 17,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    '@' + (user.nikNameId ?? ''),
-                    style: const TextStyle(
-                      color: AppColors.text,
-                      fontSize: 17,
-                      letterSpacing: -.41,
-                      height: 22 / 17,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          onStretchTrigger: () async {
-            print(3213123123);
-          },
-        ),
-        SliverAnimatedList(
-          initialItemCount: 200,
-          itemBuilder: (context, index, animation) => Container(
-            width: double.infinity,
-            height: 200,
-            color: const Color.fromARGB(255, 217, 51, 51),
-            margin: const EdgeInsets.only(bottom: 25),
-          ),
-        ),
-      ],
-    );
+          );
+        });
   }
 
-  DecoratedBox bg({Widget? child}) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color.fromRGBO(109, 246, 255, 0.8),
-            Color.fromRGBO(113, 255, 221, 0.8),
-          ],
-          begin: Alignment.topLeft,
-          // end: ,
-          end: Alignment.bottomRight,
+  Widget bg({Widget? child, double opacity = .8}) {
+    return ClipRRect(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color.fromRGBO(109, 246, 255, opacity),
+              Color.fromRGBO(113, 255, 221, opacity),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: child,
         ),
       ),
-      child: child,
     );
   }
 }
 
-class SettingsPageHaderDelegate extends SliverPersistentHeaderDelegate {
-  final double expandedHeight;
-  final Widget extendChild;
-  final Widget child;
-  final Color? color;
-  const SettingsPageHaderDelegate({
-    required this.expandedHeight,
-    required this.child,
-    required this.extendChild,
-    this.color,
-  });
+class SettingsAppBarContent extends StatelessWidget {
+  const SettingsAppBarContent({
+    Key? key,
+    required this.user,
+  }) : super(key: key);
+
+  final ProUser user;
 
   @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    return DecoratedBox(
-      decoration: BoxDecoration(color: color),
-      child: Stack(
-        fit: StackFit.expand,
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
         children: [
-          buildOnLoose(shrinkOffset),
-          buildOnExtend(shrinkOffset),
+          Text(
+            user.name ?? '',
+            style: const TextStyle(
+              color: AppColors.text,
+              fontSize: 17,
+              letterSpacing: -.41,
+              height: 22 / 17,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            '@' + (user.nikNameId ?? ''),
+            style: const TextStyle(
+              color: AppColors.text,
+              fontSize: 13,
+              letterSpacing: -.41,
+              height: 22 / 13,
+            ),
+          ),
         ],
       ),
     );
   }
+}
 
-  Widget buildOnExtend(double shrinkOffset) {
-    return SafeArea(
-      child: Opacity(
-        opacity: disApear(shrinkOffset),
-        child: extendChild,
+class UserDataSettingsWidget extends StatelessWidget {
+  final ProUser user;
+  const UserDataSettingsWidget({
+    Key? key,
+    required this.user,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final userData = user.toDataInfo(context);
+
+    final titles = userData.keys.toList();
+    final subtitles = userData.values.toList();
+    return BgContainer(
+      padding: const EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 34,
+        bottom: 30,
+      ),
+      child: ListView.separated(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        padding: EdgeInsets.zero,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return UserSettingsTile(
+              icon: Transform.rotate(
+                angle: pi / 2,
+                child: const Icon(
+                  Icons.remove_circle_outline_outlined,
+                  color: AppColors.text,
+                  size: 28,
+                ),
+              ),
+              title: titles[index].trim(),
+              subtitle: '${subtitles[index]}'.trim(),
+            );
+          }
+
+          return UserSettingsTile(
+            hasOffset: true,
+            title: titles[index].trim(),
+            subtitle: '${subtitles[index]}'.trim(),
+          );
+        },
+        separatorBuilder: (_, __) => const SizedBox(height: 16),
+        itemCount: userData.length,
       ),
     );
   }
+}
 
-  Widget buildOnLoose(double shrinkOffset) {
-    return SafeArea(
-      child: Opacity(
-        opacity: apear(shrinkOffset),
-        child: child,
+class UserSettingsTile extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final bool hasOffset;
+  final Widget? icon;
+
+  const UserSettingsTile({
+    Key? key,
+    required this.title,
+    required this.subtitle,
+    this.hasOffset = false,
+    this.icon,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (icon != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: icon!,
+            ),
+          if (icon == null) const SizedBox(width: 44),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: AppColors.textInfo,
+                    fontSize: 14,
+                    height: 24 / 14,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    color: AppColors.text,
+                    fontSize: 16,
+                    height: 24 / 16,
+                  ),
+                  textAlign: TextAlign.left,
+                ),
+              ],
+            ),
+          )
+        ],
       ),
     );
   }
+}
 
-  double apear(double shrinkOffset) => shrinkOffset / expandedHeight;
-  double disApear(double shrinkOffset) => 1 - shrinkOffset / expandedHeight;
+class BgContainer extends StatelessWidget {
+  final Widget? child;
+  final EdgeInsets padding;
+  const BgContainer({
+    Key? key,
+    this.child,
+    this.padding = EdgeInsets.zero,
+  }) : super(key: key);
 
   @override
-  double get maxExtent => expandedHeight;
-
-  @override
-  double get minExtent => kToolbarHeight + 30;
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    return true;
+  Widget build(BuildContext context) {
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: AppColors.greyPrimary,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: child,
+    );
   }
 }
