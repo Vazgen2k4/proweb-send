@@ -41,6 +41,7 @@ class _AppContentState extends State<AppContent> {
       theme: ThemeData(
         scaffoldBackgroundColor: AppColors.bg,
         useMaterial3: true,
+        appBarTheme: AppBarTheme(backgroundColor: AppColors.greyPrimary),
       ),
       localizationsDelegates: const [
         S.delegate,
@@ -53,7 +54,7 @@ class _AppContentState extends State<AppContent> {
       onGenerateRoute: (settings) => AppNavigator.generate(
         settings,
       ),
-      routes: AppNavigator.routes,
+      // routes: AppNavigator.routes,
     );
   }
 }

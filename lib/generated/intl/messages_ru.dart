@@ -22,25 +22,34 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "add_account": MessageLookupByLibrary.simpleMessage("Добавить аккаунт"),
         "auth_button": MessageLookupByLibrary.simpleMessage("Войти"),
         "auth_code_sms_title":
             MessageLookupByLibrary.simpleMessage("Введите код из SMS"),
         "auth_title": MessageLookupByLibrary.simpleMessage("Авторизация"),
+        "bg": MessageLookupByLibrary.simpleMessage("Фон"),
         "bio": MessageLookupByLibrary.simpleMessage("О себе"),
         "choose_country_title":
             MessageLookupByLibrary.simpleMessage("Выберите страну"),
         "continue_button": MessageLookupByLibrary.simpleMessage("Продолжить"),
+        "corners_message":
+            MessageLookupByLibrary.simpleMessage("Углы сообщений"),
         "create_button": MessageLookupByLibrary.simpleMessage("Подтвердить"),
         "create_title":
             MessageLookupByLibrary.simpleMessage("Начните общение в\nPROCHAT!"),
+        "done": MessageLookupByLibrary.simpleMessage("Готово"),
         "email": MessageLookupByLibrary.simpleMessage("Электронная почта"),
         "exit_button": MessageLookupByLibrary.simpleMessage("Выход"),
+        "font_size": MessageLookupByLibrary.simpleMessage("Размер текста"),
         "hello_title":
             MessageLookupByLibrary.simpleMessage("Добро пожаловать в"),
+        "language": MessageLookupByLibrary.simpleMessage("Язык"),
+        "night_theme": MessageLookupByLibrary.simpleMessage("Ночная тема"),
         "nik_name": MessageLookupByLibrary.simpleMessage("Никнейм"),
         "number_telephone":
             MessageLookupByLibrary.simpleMessage("Номер телефона"),
         "safe_btn": MessageLookupByLibrary.simpleMessage("Сохранить"),
-        "start_btn_txt": MessageLookupByLibrary.simpleMessage("Начать")
+        "start_btn_txt": MessageLookupByLibrary.simpleMessage("Начать"),
+        "theme": MessageLookupByLibrary.simpleMessage("Тема")
       };
 }

@@ -145,7 +145,7 @@ class _CountriCodeFieldState extends State<CountriCodeField> {
           country.callingCode,
           style: const TextStyle(
             color: AppColors.text,
-            fontSize: 24,
+            fontSize: 22,
             height: 1,
           ),
         ),
@@ -155,8 +155,8 @@ class _CountriCodeFieldState extends State<CountriCodeField> {
             controller: proUserController.phoneController,
             style: const TextStyle(
               color: AppColors.text,
-              fontSize: 24,
-              height: 1.33,
+              fontSize: 22,
+              height: 1.4,
             ),
             keyboardType: TextInputType.number,
             inputFormatters: [

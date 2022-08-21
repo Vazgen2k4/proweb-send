@@ -130,6 +130,86 @@ class S {
     );
   }
 
+  /// `Add account`
+  String get add_account {
+    return Intl.message(
+      'Add account',
+      name: 'add_account',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Theme`
+  String get theme {
+    return Intl.message(
+      'Theme',
+      name: 'theme',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Language`
+  String get language {
+    return Intl.message(
+      'Language',
+      name: 'language',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Done`
+  String get done {
+    return Intl.message(
+      'Done',
+      name: 'done',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Background`
+  String get bg {
+    return Intl.message(
+      'Background',
+      name: 'bg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Night theme`
+  String get night_theme {
+    return Intl.message(
+      'Night theme',
+      name: 'night_theme',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Font size`
+  String get font_size {
+    return Intl.message(
+      'Font size',
+      name: 'font_size',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Corners message's`
+  String get corners_message {
+    return Intl.message(
+      'Corners message\'s',
+      name: 'corners_message',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Choose a country`
   String get choose_country_title {
     return Intl.message(

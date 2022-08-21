@@ -29,5 +29,10 @@ groups:
     package: res
     types: [ .riv ]
 
+  - path: assets/images
+    class_name: AppImages
+    package: res
+    types: [ .png ]
+
 
     

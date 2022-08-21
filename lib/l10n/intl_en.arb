@@ -7,8 +7,14 @@
     "email": "Email",
     "nik_name": "Nik name",
     "bio": "Bio",
-
-
+    "add_account": "Add account",
+    "theme": "Theme",
+    "language": "Language",
+    "done": "Done",
+    "bg": "Background",
+    "night_theme": "Night theme",
+    "font_size": "Font size",
+    "corners_message": "Corners message's",
 
     "choose_country_title": "Choose a country",
     "exit_button": "Exit",

@@ -7,8 +7,16 @@
     "email": "Электронная почта",
     "nik_name": "Никнейм",
     "bio": "О себе",
+    "add_account": "Добавить аккаунт",
+    "theme": "Тема",
+    "language": "Язык",
+    "done": "Готово",
+    "bg": "Фон",
+    "night_theme": "Ночная тема",
+    "font_size": "Размер текста",
+    "corners_message": "Углы сообщений",
 
-    
+
     "choose_country_title": "Выберите страну",
     "exit_button": "Выход",
     "continue_button": "Продолжить",

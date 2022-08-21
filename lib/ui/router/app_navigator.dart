@@ -6,29 +6,62 @@ import 'package:proweb_send/ui/pages/auth/auth_page_start.dart';
 import 'package:proweb_send/ui/pages/error_404_page/error_404_page.dart';
 import 'package:proweb_send/ui/pages/home_page/home_page.dart';
 import 'package:proweb_send/ui/pages/register/register_page.dart';
+import 'package:proweb_send/ui/pages/settings/settings_theme_page.dart';
 import 'package:proweb_send/ui/router/app_routes.dart';
 
 class AppNavigator {
   static String initRoute = AppRoutes.auth;
-  static Map<String, WidgetBuilder> get routes {
-    return {
-      AppRoutes.home: (context) => const HomePage(),
-      AppRoutes.auth: (context) => const AuthPage(),
-      AppRoutes.authStart: (context) => const AuthPageStart(),
-      AppRoutes.authLogIn: (context) => const AuthPageLogIn(),
-      AppRoutes.authConfirm: (context) => const AuthPageConfirm(),
-      AppRoutes.register: (context) => const RegisterPage(),
-    };
-  }
 
   static Route generate(RouteSettings settings) {
+    final name = settings.name ?? '/404';
+    const duration = 500; 
+
     final _settings = RouteSettings(
-      name: '/404',
+      name: name,
       arguments: settings.arguments,
     );
-    return MaterialPageRoute(
-      settings: _settings,
-      builder: (_) => const Error404Page(),
-    );
+
+    switch (name) {
+      case AppRoutes.authLogIn:
+        return PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: duration),
+          pageBuilder: (_, __, ___) => const AuthPageLogIn(),
+        );
+      case AppRoutes.settingsTheme:
+        return PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: duration),
+          pageBuilder: (_, __, ___) => const SettingsThemePage(),
+        );
+      case  AppRoutes.home:
+        return PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: duration),
+          pageBuilder: (_, __, ___) => const HomePage(),
+        );
+      case AppRoutes.auth:
+        return PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: duration),
+          pageBuilder: (_, __, ___) => const AuthPage(),
+        );
+      case AppRoutes.authStart:
+        return PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: duration),
+          pageBuilder: (_, __, ___) => const AuthPageStart(),
+        );
+      case AppRoutes.authConfirm:
+        return PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: duration),
+          pageBuilder: (_, __, ___) => const AuthPageConfirm(),
+        );
+      case AppRoutes.register:
+        return PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: duration),
+          pageBuilder: (_, __, ___) => const RegisterPage(),
+        );
+      default:
+        return MaterialPageRoute(
+          settings: _settings,
+          builder: (_) => const Error404Page(),
+        );
+    }
   }
 }

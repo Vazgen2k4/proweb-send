@@ -19,7 +19,7 @@ abstract class AppColors {
   static const Color elementsSecondaryLight = Color(0xff9b9b9b);
 
   static const Color text = Color(0xffffffff);
-  static const Color textLight = Color(0xff333333);
+  static const Color textLight = Color(0xff333333); 
 
   static const Color textInput = Color(0xff646464);
   static const Color textInputLight = Color(0xff5e5e5e);
