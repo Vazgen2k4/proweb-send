@@ -9,10 +9,28 @@ abstract class SettingsBlocEvent extends Equatable {
 
 class LoadSettings extends SettingsBlocEvent {
   const LoadSettings();
-  
 }
 
-// class LoadSettings extends SettingsBlocEvent {
-//   const LoadSettings();
-// }
+class SetBorderRadius extends SettingsBlocEvent {
+  final double borderRadius;
+  const SetBorderRadius({required this.borderRadius});
 
+  @override
+  List<Object?> get props => [borderRadius];
+}
+
+class SetFontSize extends SettingsBlocEvent {
+  final double fontSize;
+  const SetFontSize({required this.fontSize});
+
+  @override
+  List<Object?> get props => [fontSize];
+}
+
+class SetLocale extends SettingsBlocEvent {
+  final String locale;
+  const SetLocale({required this.locale});
+
+  @override
+  List<Object?> get props => [locale];
+}

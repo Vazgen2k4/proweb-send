@@ -50,6 +50,26 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
+  /// `en`
+  String get locale {
+    return Intl.message(
+      'en',
+      name: 'locale',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `English`
+  String get locale_lang {
+    return Intl.message(
+      'English',
+      name: 'locale_lang',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Welcome to`
   String get hello_title {
     return Intl.message(
@@ -205,6 +225,16 @@ class S {
     return Intl.message(
       'Corners message\'s',
       name: 'corners_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Language settings`
+  String get language_settings {
+    return Intl.message(
+      'Language settings',
+      name: 'language_settings',
       desc: '',
       args: [],
     );

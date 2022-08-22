@@ -29,7 +29,6 @@ class ProUser extends Equatable {
       phone: json?['phone'],
       descr: json?['descr'],
       nikNameId: json?['nikNameId'],
-      // email: json?['email'],
     );
   }
 
@@ -48,7 +47,6 @@ class ProUser extends Equatable {
       phone: phone ?? this.phone,
       nikNameId: nikNameId ?? this.nikNameId,
       descr: descr ?? this.descr,
-      // email: email ?? this.email,
       imagePath: imagePath ?? this.imagePath,
     );
   }
@@ -109,8 +107,6 @@ class ProUserController {
 
     final _code = _countryCode.trim();
     final _number = _phoneController.value.text.trim();
-    print(_code);
-    print(_number);
     return _code.replaceAll(' ', '') + _number.replaceAll(' ', '');
   }
 

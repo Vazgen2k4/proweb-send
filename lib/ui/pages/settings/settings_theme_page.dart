@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:proweb_send/domain/bloc/settings_bloc/settings_bloc.dart';
+import 'package:proweb_send/domain/models/settings_model.dart';
 import 'package:proweb_send/generated/l10n.dart';
 import 'package:proweb_send/resources/resources.dart';
 import 'package:proweb_send/ui/pages/settings/settings_page.dart';
@@ -27,7 +30,13 @@ class SettingsThemePage extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: TextButton(
-                onPressed: () {},
+                onPressed: () async {
+                   final state = context.read<SettingsBloc>().state;
+                   if(state is! SettingsBlocLoded) return;
+
+                  await state.settings.saveSettingsOnDevice();
+                  Navigator.pop(context);
+                },
                 child: Text(
                   S.of(context).done,
                   style: const TextStyle(
@@ -115,69 +124,98 @@ class MessengerControllWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settingsBloc = context.read<SettingsBloc>();
+
     return BgContainer(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          SettingsThemeSliderWidget(
-            icon: Icons.dashboard_outlined,
-            maximun: 22,
-            minimum: 12,
-            title: S.of(context).font_size,
-          ),
-          const SizedBox(height: 32),
-          SettingsThemeSliderWidget(
-            icon: Icons.messenger_outline_rounded,
-            maximun: 22,
-            minimum: 12,
-            title: S.of(context).corners_message,
-          ),
-          const SizedBox(height: 24),
-          Container(
-            padding: const EdgeInsets.all(16),
-            constraints: const BoxConstraints(maxHeight: 156),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              image: const DecorationImage(
-                image: AssetImage(AppImages.beaer),
-                fit: BoxFit.contain,
+      child: BlocBuilder<SettingsBloc, SettingsBlocState>(
+        builder: (context, state) {
+          if (state is! SettingsBlocLoded) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          final settings = state.settings;
+
+          return Column(
+            children: [
+              SettingsThemeSliderWidget(
+                icon: Icons.dashboard_outlined,
+                maximun: 22,
+                init: settings.fontSize ?? 14,
+                minimum: 12,
+                title: S.of(context).font_size,
+                onChangeEnd: (fontSize) {
+                  settingsBloc.add(SetFontSize(fontSize: fontSize));
+                },
               ),
-            ),
-            child: Column(
-              children: const <Widget>[
-                MessageWidget(
-                  itsMe: true,
-                  message: 'Добрый день',
-                  time: '4:18',
+              const SizedBox(height: 32),
+              SettingsThemeSliderWidget(
+                icon: Icons.messenger_outline_rounded,
+                maximun: 22,
+                minimum: 12,
+                init: settings.borderRadius ?? 14,
+                title: S.of(context).corners_message,
+                onChangeEnd: (radius) {
+                  settingsBloc.add(
+                    SetBorderRadius(borderRadius: radius),
+                  );
+                },
+              ),
+              const SizedBox(height: 24),
+              Container(
+                constraints: const BoxConstraints(maxHeight: 156, minWidth: 311),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  image: const DecorationImage(
+                    image: AssetImage(AppImages.beaer),
+                    fit: BoxFit.cover,
+                  ),
                 ),
-                MessageWidget(
-                  itsMe: false,
-                  message: 'Да, здравствуйте',
-                  time: '4:18',
+                child: ListView(
+                padding: const EdgeInsets.all(16),
+                  children: <Widget>[
+                    MessageWidget(
+                      itsMe: true,
+                      message:
+                          'Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день ',
+                      time: '4:18',
+                      settings: settings,
+                    ),
+                    MessageWidget(
+                      itsMe: false,
+                      message: 'Да, здравствуйте',
+                      time: '4:18',
+                      settings: settings,
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        ],
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
 class SettingsThemeSliderWidget extends StatefulWidget {
-  final VoidCallback? onChange;
+  final void Function(double value)? onChangeEnd;
   final double minimum;
   final double maximun;
+  final double init;
   final IconData icon;
   final String title;
 
   const SettingsThemeSliderWidget({
     Key? key,
-    this.onChange,
+    this.onChangeEnd,
     required this.minimum,
     required this.maximun,
     required this.icon,
     required this.title,
+    required this.init,
   }) : super(key: key);
 
   @override
@@ -190,7 +228,7 @@ class _SettingsThemeSliderWidgetState extends State<SettingsThemeSliderWidget> {
 
   @override
   void initState() {
-    value = widget.minimum;
+    value = widget.init;
     super.initState();
   }
 
@@ -236,6 +274,7 @@ class _SettingsThemeSliderWidgetState extends State<SettingsThemeSliderWidget> {
             ),
             child: Slider(
               divisions: 5,
+
               max: widget.maximun,
               min: widget.minimum,
               value: value,
@@ -244,7 +283,11 @@ class _SettingsThemeSliderWidgetState extends State<SettingsThemeSliderWidget> {
                 setState(() {
                   value = newValue;
                 });
+
+                final action = widget.onChangeEnd;
+                action == null ? 0 : action(newValue);
               },
+              // onChangeEnd: onChangeEnd,
             ),
           ),
         )
@@ -257,15 +300,24 @@ class MessageWidget extends StatelessWidget {
   final String message;
   final bool itsMe;
   final String time;
+  final SettingsModel settings;
+
   const MessageWidget({
     Key? key,
     required this.message,
     required this.itsMe,
     required this.time,
+    required this.settings,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final borderRadius = settings.borderRadius ?? 10;
+    final fontSize = settings.fontSize ?? 22;
+    final deviceWidth = MediaQuery.of(context).size.width;
+    const widthPrecent = .5;
+    final maxWidth = deviceWidth * widthPrecent;
+
     return Align(
       alignment: itsMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Column(
@@ -273,7 +325,9 @@ class MessageWidget extends StatelessWidget {
         crossAxisAlignment:
             itsMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: <Widget>[
-          DecoratedBox(
+          AnimatedContainer(
+            constraints: BoxConstraints(maxWidth: maxWidth),
+            duration: const Duration(milliseconds: 300),
             decoration: BoxDecoration(
               color: !itsMe ? const Color(0xffe2e2e2) : null,
               gradient: itsMe
@@ -287,25 +341,25 @@ class MessageWidget extends StatelessWidget {
                     )
                   : null,
               borderRadius: itsMe
-                  ? const BorderRadius.only(
-                      bottomLeft: Radius.circular(10),
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
+                  ? BorderRadius.only(
+                      bottomLeft: Radius.circular(borderRadius),
+                      topLeft: Radius.circular(borderRadius),
+                      topRight: Radius.circular(borderRadius),
                     )
-                  : const BorderRadius.only(
-                      bottomRight: Radius.circular(10),
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
+                  : BorderRadius.only(
+                      bottomRight: Radius.circular(borderRadius),
+                      topLeft: Radius.circular(borderRadius),
+                      topRight: Radius.circular(borderRadius),
                     ),
             ),
             child: Padding(
               padding: const EdgeInsets.all(10),
               child: Text(
                 message,
-                style: const TextStyle(
-                  fontSize: 14,
-                  height: 17 / 14,
-                  color: Color(0xff151515),
+                style: TextStyle(
+                  fontSize: fontSize,
+                  height: 1.21,
+                  color: const Color(0xff151515),
                 ),
               ),
             ),

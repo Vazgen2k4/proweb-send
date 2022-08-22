@@ -3,7 +3,9 @@ import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:proweb_send/domain/bloc/settings_bloc/settings_bloc.dart';
 import 'package:proweb_send/domain/firebase/firebase_collections.dart';
 import 'package:proweb_send/domain/models/pro_user.dart';
 import 'package:proweb_send/generated/l10n.dart';
@@ -12,11 +14,70 @@ import 'package:proweb_send/ui/theme/app_colors.dart';
 import 'package:proweb_send/ui/widgets/app_hero_tags.dart';
 import 'package:proweb_send/ui/widgets/choos_image/choose_image.dart';
 import 'package:proweb_send/ui/widgets/custom_app_bar/custom_app_bar.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsPage extends StatelessWidget {
   final PageController pageController;
   const SettingsPage({Key? key, required this.pageController})
       : super(key: key);
+
+  void _languageChose(BuildContext context) async {
+    final curentLang = S.of(context).locale;
+
+    await showCupertinoModalPopup(
+      context: context,
+      builder: (context) {
+        // final items
+
+        return CupertinoAlertDialog(
+          title: Text(S.of(context).language_settings),
+          content: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 6,
+              runSpacing: 4,
+              children: [
+                BgContainer(
+                  padding: const EdgeInsets.all(16.0),
+                  child: const Text('Русский'),
+                  action: () {
+                    if (curentLang != 'ru') {
+                      context
+                          .read<SettingsBloc>()
+                          .add(const SetLocale(locale: 'ru'));
+                      Navigator.pop(context);
+                    }
+                  },
+                ),
+                BgContainer(
+                  padding: const EdgeInsets.all(16.0),
+                  child: const Text('English'),
+                  action: () {
+                    if (curentLang != 'en') {
+                      context
+                          .read<SettingsBloc>()
+                          .add(const SetLocale(locale: 'en'));
+                      Navigator.pop(context);
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text(S.of(context).exit_button),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,9 +145,7 @@ class SettingsPage extends StatelessWidget {
               sliver: SliverList(
                 delegate: SliverChildListDelegate(
                   <Widget>[
-                    UserDataSettingsWidget(
-                      user: user,
-                    ),
+                    UserDataSettingsWidget(user: user),
                     const SizedBox(height: 32),
                     SettingsButton(
                       icon: Icons.add_circle_outline_rounded,
@@ -120,9 +179,7 @@ class SettingsPage extends StatelessWidget {
                             setCenter: true,
                             icon: Icons.language_outlined,
                             title: S.of(context).language,
-                            action: () {
-                              print(1);
-                            },
+                            action: () => _languageChose(context),
                           ),
                         ),
                       ],
@@ -385,12 +442,15 @@ class SettingsButton extends StatelessWidget {
               color: AppColors.akcent,
             ),
           ),
-          if(traling != null) const Spacer(),
-          if(traling != null) traling!,
+          if (traling != null) const Spacer(),
+          if (traling != null) traling!,
         ],
       ),
     );
   }
 }
 
-
+// class SettingsLanguageBtnData {
+//   final String title;
+//   final String lang;
+// }

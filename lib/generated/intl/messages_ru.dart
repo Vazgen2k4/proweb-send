@@ -44,6 +44,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "hello_title":
             MessageLookupByLibrary.simpleMessage("Добро пожаловать в"),
         "language": MessageLookupByLibrary.simpleMessage("Язык"),
+        "language_settings":
+            MessageLookupByLibrary.simpleMessage("Настройки языка"),
+        "locale": MessageLookupByLibrary.simpleMessage("ru"),
+        "locale_lang": MessageLookupByLibrary.simpleMessage("Русский"),
         "night_theme": MessageLookupByLibrary.simpleMessage("Ночная тема"),
         "nik_name": MessageLookupByLibrary.simpleMessage("Никнейм"),
         "number_telephone":

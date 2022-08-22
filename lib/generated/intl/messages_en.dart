@@ -42,6 +42,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "font_size": MessageLookupByLibrary.simpleMessage("Font size"),
         "hello_title": MessageLookupByLibrary.simpleMessage("Welcome to"),
         "language": MessageLookupByLibrary.simpleMessage("Language"),
+        "language_settings":
+            MessageLookupByLibrary.simpleMessage("Language settings"),
+        "locale": MessageLookupByLibrary.simpleMessage("en"),
+        "locale_lang": MessageLookupByLibrary.simpleMessage("English"),
         "night_theme": MessageLookupByLibrary.simpleMessage("Night theme"),
         "nik_name": MessageLookupByLibrary.simpleMessage("Nik name"),
         "number_telephone":

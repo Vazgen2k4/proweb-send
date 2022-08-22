@@ -10,9 +10,15 @@ abstract class SettingsBlocState extends Equatable {
 class SettingsBlocInitial extends SettingsBlocState {}
 
 class SettingsBlocLoded extends SettingsBlocState {
-
-  const SettingsBlocLoded();
+  final SettingsModel settings;
+  const SettingsBlocLoded({required this.settings});
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [settings];
+
+  SettingsBlocLoded copyWith({SettingsModel? settings}) {
+    return SettingsBlocLoded(
+      settings: settings ?? this.settings,
+    );
+  }
 }

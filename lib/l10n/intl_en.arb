@@ -1,4 +1,7 @@
 {
+    "locale": "en",
+    "locale_lang": "English",
+
     "hello_title": "Welcome to",
     "create_title": "Create Acount",
     "auth_title": "Auth",
@@ -15,6 +18,8 @@
     "night_theme": "Night theme",
     "font_size": "Font size",
     "corners_message": "Corners message's",
+
+    "language_settings": "Language settings",
 
     "choose_country_title": "Choose a country",
     "exit_button": "Exit",
