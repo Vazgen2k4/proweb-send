@@ -47,8 +47,8 @@ class SettingsModel extends Equatable {
         ? await pref.setBool(SettingsModelKeys.theme, isNightTheme!)
         : 0;
 
-    final lang = locale?.countryCode;
-    lang != null ? await pref.setString(SettingsModelKeys.locale, lang) : 0;
+    final lang = locale.toString();
+    locale != null ? await pref.setString(SettingsModelKeys.locale, lang) : 0;
   }
 
   static Future<SettingsModel> getSettingsOnDevice() async {

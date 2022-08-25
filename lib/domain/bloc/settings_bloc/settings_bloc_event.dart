@@ -34,3 +34,11 @@ class SetLocale extends SettingsBlocEvent {
   @override
   List<Object?> get props => [locale];
 }
+
+class SetUserData extends SettingsBlocEvent {
+  final ProUser user;
+  const SetUserData({required this.user});
+
+  @override
+  List<Object?> get props => [user];
+}

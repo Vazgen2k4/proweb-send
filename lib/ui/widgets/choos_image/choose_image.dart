@@ -33,12 +33,14 @@ class _ChoseImageWidgetState extends State<ChoseImageWidget> {
 
     return GestureDetector(
       onTap: () async {
-        final file = await userController.selectImage();
-        if (file == null) return;
-        imgPath = file.path;
+        try {
+          final file = await userController.selectImage();
+          if (file == null) return;
+          imgPath = file.path;
 
-        img = imgPath != null ? FileImage(File(imgPath!)) : null;
-        setState(() {});
+          img = imgPath != null ? FileImage(File(imgPath!)) : null;
+          setState(() {});
+        } catch (e) {}
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(widget.radius),

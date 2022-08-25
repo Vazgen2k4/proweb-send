@@ -4,9 +4,11 @@ import 'package:proweb_send/domain/bloc/settings_bloc/settings_bloc.dart';
 import 'package:proweb_send/domain/models/settings_model.dart';
 import 'package:proweb_send/generated/l10n.dart';
 import 'package:proweb_send/resources/resources.dart';
-import 'package:proweb_send/ui/pages/settings/settings_page.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
 import 'package:proweb_send/ui/widgets/app_hero_tags.dart';
+import 'package:proweb_send/ui/widgets/bg_container.dart';
+import 'package:proweb_send/ui/widgets/constains.dart';
+import 'package:proweb_send/ui/widgets/settings/settings_button.dart';
 
 class SettingsThemePage extends StatelessWidget {
   const SettingsThemePage({Key? key}) : super(key: key);
@@ -31,8 +33,8 @@ class SettingsThemePage extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: TextButton(
                 onPressed: () async {
-                   final state = context.read<SettingsBloc>().state;
-                   if(state is! SettingsBlocLoded) return;
+                  final state = context.read<SettingsBloc>().state;
+                  if (state is! SettingsBlocLoded) return;
 
                   await state.settings.saveSettingsOnDevice();
                   Navigator.pop(context);
@@ -142,9 +144,9 @@ class MessengerControllWidget extends StatelessWidget {
             children: [
               SettingsThemeSliderWidget(
                 icon: Icons.dashboard_outlined,
-                maximun: 22,
-                init: settings.fontSize ?? 14,
-                minimum: 12,
+                maximun: Constains.fontSizeMax,
+                minimum: Constains.fontSizeMin,
+                init: settings.fontSize ?? Constains.fontSizeInit,
                 title: S.of(context).font_size,
                 onChangeEnd: (fontSize) {
                   settingsBloc.add(SetFontSize(fontSize: fontSize));
@@ -153,9 +155,9 @@ class MessengerControllWidget extends StatelessWidget {
               const SizedBox(height: 32),
               SettingsThemeSliderWidget(
                 icon: Icons.messenger_outline_rounded,
-                maximun: 22,
-                minimum: 12,
-                init: settings.borderRadius ?? 14,
+                maximun: Constains.borderRadiusMax,
+                minimum: Constains.borderRadiusMin,
+                init: settings.borderRadius ?? Constains.borderRadiusInit,
                 title: S.of(context).corners_message,
                 onChangeEnd: (radius) {
                   settingsBloc.add(
@@ -165,7 +167,10 @@ class MessengerControllWidget extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Container(
-                constraints: const BoxConstraints(maxHeight: 156, minWidth: 311),
+                constraints: const BoxConstraints(
+                  maxHeight: 156,
+                  minWidth: 311,
+                ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   image: const DecorationImage(
@@ -174,18 +179,17 @@ class MessengerControllWidget extends StatelessWidget {
                   ),
                 ),
                 child: ListView(
-                padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   children: <Widget>[
                     MessageWidget(
                       itsMe: true,
-                      message:
-                          'Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день Добрый день ',
+                      message: 'Добрый день',
                       time: '4:18',
                       settings: settings,
                     ),
                     MessageWidget(
                       itsMe: false,
-                      message: 'Да, здравствуйте',
+                      message: 'Да, здравствуйте ',
                       time: '4:18',
                       settings: settings,
                     ),
@@ -273,8 +277,6 @@ class _SettingsThemeSliderWidgetState extends State<SettingsThemeSliderWidget> {
               showValueIndicator: ShowValueIndicator.always,
             ),
             child: Slider(
-              divisions: 5,
-
               max: widget.maximun,
               min: widget.minimum,
               value: value,
@@ -287,7 +289,6 @@ class _SettingsThemeSliderWidgetState extends State<SettingsThemeSliderWidget> {
                 final action = widget.onChangeEnd;
                 action == null ? 0 : action(newValue);
               },
-              // onChangeEnd: onChangeEnd,
             ),
           ),
         )
@@ -312,11 +313,19 @@ class MessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderRadius = settings.borderRadius ?? 10;
-    final fontSize = settings.fontSize ?? 22;
+    final borderRadius = settings.borderRadius ?? Constains.borderRadiusInit;
+    final fontSize = settings.fontSize ?? Constains.fontSizeInit;
     final deviceWidth = MediaQuery.of(context).size.width;
-    const widthPrecent = .5;
+    const widthPrecent = .8;
     final maxWidth = deviceWidth * widthPrecent;
+
+    const kefPadding = .7;
+    final paddingValue = borderRadius * kefPadding;
+    final padding = paddingValue < 10
+        ? 10.0
+        : paddingValue > 20
+            ? 16.0
+            : paddingValue;
 
     return Align(
       alignment: itsMe ? Alignment.centerRight : Alignment.centerLeft,
@@ -326,6 +335,7 @@ class MessageWidget extends StatelessWidget {
             itsMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: <Widget>[
           AnimatedContainer(
+            padding: EdgeInsets.all(padding),
             constraints: BoxConstraints(maxWidth: maxWidth),
             duration: const Duration(milliseconds: 300),
             decoration: BoxDecoration(
@@ -352,15 +362,12 @@ class MessageWidget extends StatelessWidget {
                       topRight: Radius.circular(borderRadius),
                     ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Text(
-                message,
-                style: TextStyle(
-                  fontSize: fontSize,
-                  height: 1.21,
-                  color: const Color(0xff151515),
-                ),
+            child: Text(
+              message,
+              style: TextStyle(
+                fontSize: fontSize,
+                height: 1.21,
+                color: const Color(0xff151515),
               ),
             ),
           ),

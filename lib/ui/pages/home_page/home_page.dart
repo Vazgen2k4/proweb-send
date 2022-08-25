@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:proweb_send/domain/bloc/auth_bloc/auth_bloc.dart';
+import 'package:proweb_send/ui/pages/chats/chats_page.dart';
 import 'package:proweb_send/ui/pages/settings/settings_page.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
 
@@ -34,8 +35,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     _content = [
-      Container(
-        color: Colors.green,
+      ChatsPage(
       ),
       Container(
         color: Colors.purple,

@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:proweb_send/domain/models/pro_user.dart';
 import 'package:proweb_send/domain/models/settings_model.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -13,6 +14,7 @@ class SettingsBloc extends Bloc<SettingsBlocEvent, SettingsBlocState> {
     on<SetFontSize>(_setFontSize);
     on<SetBorderRadius>(_setBorderRadius);
     on<SetLocale>(_setLocale);
+    // on<SetUserData>(_setUserData);
   }
 
   Future<void> _loadSettings(
@@ -32,9 +34,14 @@ class SettingsBloc extends Bloc<SettingsBlocEvent, SettingsBlocState> {
 
     final state = this.state as SettingsBlocLoded;
     final fontSize = event.fontSize;
-    final double value = fontSize >= 12 && fontSize <= 22 ? fontSize : 16;
 
-    emit(SettingsBlocLoded(settings: state.settings.copyWith(fontSize: value)));
+    emit(
+      SettingsBlocLoded(
+        settings: state.settings.copyWith(
+          fontSize: fontSize,
+        ),
+      ),
+    );
   }
 
   Future<void> _setBorderRadius(
@@ -44,11 +51,14 @@ class SettingsBloc extends Bloc<SettingsBlocEvent, SettingsBlocState> {
     if (this.state is! SettingsBlocLoded) return;
 
     final state = this.state as SettingsBlocLoded;
-    final fontSize = event.borderRadius;
-    final double value = fontSize >= 12 && fontSize <= 22 ? fontSize : 16;
+    final radius = event.borderRadius;
 
     emit(
-      SettingsBlocLoded(settings: state.settings.copyWith(borderRadius: value)),
+      SettingsBlocLoded(
+        settings: state.settings.copyWith(
+          borderRadius: radius,
+        ),
+      ),
     );
   }
 
@@ -69,4 +79,21 @@ class SettingsBloc extends Bloc<SettingsBlocEvent, SettingsBlocState> {
       ),
     );
   }
+  
+  
+  // Future<void> _setUserData(
+  //   SetUserData event,
+  //   Emitter<SettingsBlocState> emit,
+  // ) async {
+  //   if (this.state is! SettingsBlocLoded) return;
+
+  //   final state = this.state as SettingsBlocLoded;
+
+
+  //   emit(
+  //     SettingsBlocLoded(
+  
+  //     ),
+  //   );
+  // }
 }

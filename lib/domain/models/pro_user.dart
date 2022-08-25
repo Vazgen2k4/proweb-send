@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:proweb_send/domain/models/chat_model.dart';
 import 'package:proweb_send/generated/l10n.dart';
 
 class ProUser extends Equatable {
@@ -12,6 +13,7 @@ class ProUser extends Equatable {
   final String? descr;
   final String? imagePath;
   final String? id;
+  final List<String>? chats;
 
   const ProUser({
     this.nikNameId,
@@ -20,15 +22,23 @@ class ProUser extends Equatable {
     this.descr,
     this.name,
     this.id,
+    this.chats,
   });
 
   factory ProUser.fromJson(Map<String, dynamic>? json) {
+    List<String> chatsList = [];
+
+    if (json?['chats'] != null) {
+      chatsList = json?['chats'].map<String>((e) => e as String).toList();
+    }
+
     return ProUser(
       name: json?['name'],
       imagePath: json?['imagePath'],
       phone: json?['phone'],
       descr: json?['descr'],
       nikNameId: json?['nikNameId'],
+      chats: chatsList,
     );
   }
 
@@ -40,6 +50,7 @@ class ProUser extends Equatable {
     String? email,
     String? name,
     String? id,
+    List<String>? chats,
   }) {
     return ProUser(
       id: id ?? this.id,
@@ -48,16 +59,21 @@ class ProUser extends Equatable {
       nikNameId: nikNameId ?? this.nikNameId,
       descr: descr ?? this.descr,
       imagePath: imagePath ?? this.imagePath,
+      chats: chats ?? this.chats,
     );
   }
 
   Map<String, dynamic> toJson() {
+    String nik = (nikNameId ?? '').replaceAll(' ', '_');
+    nik = nik[0] == '@' ? nik : '@' + nik;
+
     return {
       'name': name,
       'phone': phone,
-      'nikNameId': nikNameId,
+      'nikNameId': nik,
       'descr': descr,
       'imagePath': imagePath,
+      'chats': chats,
     };
   }
 
@@ -69,9 +85,17 @@ class ProUser extends Equatable {
     };
   }
 
+  List<String> defaultTitle(BuildContext context) {
+    return [
+      S.of(context).number_telephone,
+      S.of(context).nik_name,
+      S.of(context).bio,
+    ];
+  }
+
   @override
   List<Object?> get props {
-    return [name, phone, nikNameId, id, descr, imagePath];
+    return [name, phone, nikNameId, id, descr, imagePath, chats];
   }
 }
 
@@ -104,10 +128,9 @@ class ProUserController {
 
   // Гетер уже готового номера телефона
   String get phone {
-
     final _code = _countryCode.trim();
     final _number = _phoneController.value.text.trim();
-    return _code.replaceAll(' ', '') + _number.replaceAll(' ', '');
+    return _code + _number;
   }
 
   // Сетер кода страны
