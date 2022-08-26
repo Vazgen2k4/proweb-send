@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:proweb_send/domain/firebase/firebase_collections.dart';
+import 'package:proweb_send/domain/models/chat_model.dart';
 import 'package:proweb_send/domain/models/pro_user.dart';
 import 'package:proweb_send/ui/pages/chats/singl_chat_page.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
@@ -82,7 +84,7 @@ class ChatTile extends StatelessWidget {
     required this.chatId,
   }) : super(key: key);
 
-  Future<ProUser?> _getUser() async {
+  Future<ChatTileData?> _getUser() async {
     final chat = await FirebaseFirestore.instance
         .collection(FirebaseCollections.chatPath)
         .doc(chatId)
@@ -100,21 +102,35 @@ class ChatTile extends StatelessWidget {
           .data(),
     );
 
-    return otherUser;
+    final chatDoc = await FirebaseFirestore.instance
+        .collection(FirebaseCollections.chatPath)
+        .doc(chatId)
+        .get();
+
+    final lastMessage = ChatModel.fromJson(chatDoc.data() ?? {}).messages?.last;
+
+    return ChatTileData(
+      user: otherUser,
+      message: lastMessage,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<ProUser?>(
+    return FutureBuilder<ChatTileData?>(
       future: _getUser(),
       builder: (context, snapshot) {
-        final otherUser = snapshot.data;
-        if (!snapshot.hasData || otherUser == null) {
+        final data = snapshot.data;
+        if (!snapshot.hasData || data == null) {
           return const Center(
             child: CircularProgressIndicator(),
           );
         }
-        final imgPath = otherUser.imagePath;
+        final imgPath = data.user?.imagePath;
+
+        final date =
+            DateTime.fromMillisecondsSinceEpoch(data.message?.time ?? 0);
+        final time = DateFormat('HH:mm').format(date);
         return Hero(
           tag: chatId,
           child: BgContainer(
@@ -127,7 +143,7 @@ class ChatTile extends StatelessWidget {
                     return SinglChatPage(
                       chatId: chatId,
                       imgPath: imgPath,
-                      contactName: otherUser.name,
+                      contactName: data.user?.name,
                     );
                   },
                 ),
@@ -141,14 +157,16 @@ class ChatTile extends StatelessWidget {
                 backgroundImage: imgPath != null ? NetworkImage(imgPath) : null,
               ),
               title: Text(
-                '${otherUser.name}',
+                '${data.user?.name}',
                 style: const TextStyle(
                   color: AppColors.text,
                 ),
               ),
-              subtitle: const Text(
-                'Дата',
-                style: TextStyle(
+              subtitle: Text(
+                '${data.message?.content}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
                   color: AppColors.textInfoSecondary,
                   fontSize: 14,
                   height: 1.5,
@@ -156,15 +174,15 @@ class ChatTile extends StatelessWidget {
               ),
               trailing: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   Text(
-                    '4:20',
-                    style: TextStyle(
+                    time,
+                    style: const TextStyle(
                       color: AppColors.text,
                     ),
                   ),
-                  SizedBox(height: 12),
-                  Icon(
+                  const SizedBox(height: 12),
+                  const Icon(
                     Icons.done_all,
                     size: 16,
                     color: AppColors.akcentSecondaryLight,
@@ -177,4 +195,11 @@ class ChatTile extends StatelessWidget {
       },
     );
   }
+}
+
+class ChatTileData {
+  final ProUser? user;
+  final Message? message;
+
+  ChatTileData({required this.user, required this.message});
 }

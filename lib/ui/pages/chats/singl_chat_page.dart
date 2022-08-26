@@ -65,7 +65,8 @@ class SinglChatPage extends StatelessWidget {
             if (messages.isEmpty) {
               return Center(
                 child: Text(
-                  'Начните общение с $contactName',
+                  'Начните общение с пользователем\n $contactName',
+                  textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: AppColors.text,
                   ),
@@ -125,11 +126,16 @@ class ChatMessageWidget extends StatelessWidget {
           return const SizedBox();
         }
 
-        return ListView.separated(
-          padding: const EdgeInsets.all(16),
-          separatorBuilder: (context, index) => const SizedBox(height: 16),
-          itemCount: messages.length,
-          itemBuilder: (context, index) {
+        return AnimatedList(
+          padding: const EdgeInsets.only(
+            bottom: 100,
+            left: 16,
+            top: 16,
+            right: 16,
+          ),
+          // separatorBuilder: (context, index) => const SizedBox(height: 16),
+          initialItemCount: messages.length,
+          itemBuilder: (context, index, animation) {
             final message = messages[index];
             final myUid = FirebaseAuth.instance.currentUser?.uid;
             final date = DateTime.fromMillisecondsSinceEpoch(message.time ?? 0);
@@ -158,7 +164,6 @@ class EnterInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Expanded(
       child: TextField(
         style: const TextStyle(fontSize: 16, color: AppColors.text),
@@ -191,17 +196,13 @@ class EnterInput extends StatelessWidget {
               .doc(chatId)
               .get();
 
-          print( chatData.data());
-
           final chat = ChatModel.fromJson(chatData.data() ?? {});
           chat.messages?.add(mess);
-          print(chat.messages);
 
           await FirebaseFirestore.instance
               .collection(FirebaseCollections.chatPath)
               .doc(chatId)
               .set(chat.toJson());
-
         },
       ),
     );
