@@ -1,32 +1,50 @@
-import 'package:equatable/equatable.dart';
+class ChatModel {
+  List<Message>? messages;
+  List<String>? users;
 
-class ChatModel extends Equatable {
-  final String chatId;
-  final List<MessageModel> messages;
-  final List<String> users;
+  ChatModel({this.messages, this.users});
 
-  const ChatModel({
-    required this.chatId,
-    required this.messages,
-    required this.users, 
-  });
+  ChatModel.fromJson(Map<String, dynamic> json) {
+    messages = <Message>[];
+    if (json['message'] != null) {
+      json['message'].forEach((v) {
+        messages!.add(Message.fromJson(v));
+      });
+    }
+    users = json['users'].cast<String>();
+  }
 
-
-  @override
-  List<Object?> get props => [chatId, messages, users];
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {};
+    if (messages != null) {
+      data['message'] = messages!.map((v) => v.toJson()).toList();
+    }
+    data['users'] = users;
+    return data;
+  }
 }
 
-class MessageModel extends Equatable {
-  final String userId;
-  final String title;
-  final DateTime timeSend;
+class Message {
+  int? time;
+  String? content;
+  String? userId;
+  bool? visible;
 
-  const MessageModel({
-    required this.userId,
-    required this.title,
-    required this.timeSend,
-  });
+  Message({this.time, this.content, this.userId, this.visible});
 
-  @override
-  List<Object?> get props => [userId, timeSend, title];
+  Message.fromJson(Map<String, dynamic> json) {
+    time = json['time'];
+    content = json['content'];
+    userId = json['user-id'];
+    visible = json['visible'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {};
+    data['time'] = time;
+    data['content'] = content;
+    data['user-id'] = userId;
+    data['visible'] = visible;
+    return data;
+  }
 }

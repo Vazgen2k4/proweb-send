@@ -6,6 +6,7 @@ abstract class FirebaseCollections {
   FirebaseCollections._();
 
   static const String usersPath = 'users';
+  static const String chatPath = 'chats';
 
   static Future<void> addUserTo({
     String? userId,
