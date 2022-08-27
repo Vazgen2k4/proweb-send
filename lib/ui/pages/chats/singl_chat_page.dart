@@ -8,7 +8,6 @@ import 'package:proweb_send/domain/firebase/firebase_collections.dart';
 import 'package:proweb_send/domain/models/chat_model.dart';
 import 'package:proweb_send/ui/pages/settings/settings_theme_page.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
-import 'package:proweb_send/ui/widgets/bg_container.dart';
 
 class SinglChatPage extends StatelessWidget {
   final String chatId;
@@ -133,7 +132,6 @@ class ChatMessageWidget extends StatelessWidget {
             top: 16,
             right: 16,
           ),
-          // separatorBuilder: (context, index) => const SizedBox(height: 16),
           initialItemCount: messages.length,
           itemBuilder: (context, index, animation) {
             final message = messages[index];
