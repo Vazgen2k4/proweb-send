@@ -1,7 +1,9 @@
-import 'dart:html';
+import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
+import 'package:proweb_send/domain/firebase/firebase_collections.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -18,8 +20,10 @@ class _ContactsPageState extends State<ContactsPage> {
     if (permission != PermissionStatus.granted &&
         permission != PermissionStatus.permanentlyDenied) {
       PermissionStatus permissionStatus = await Permission.contacts.request();
+      print(permission);
       return permissionStatus;
     } else {
+      print(permission);
       return permission;
     }
   }
@@ -36,12 +40,6 @@ class _ContactsPageState extends State<ContactsPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _getContactPermission();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -53,50 +51,92 @@ class _ContactsPageState extends State<ContactsPage> {
         ),
         automaticallyImplyLeading: false,
       ),
-      body: FutureBuilder<PermissionStatus>(builder: (context, d) {
-        final dd = d.data;
-        if (!d.hasData || dd == null) {
-          if (dd == null || !d.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        }
-        if (dd.isDenied) {
-          return FutureBuilder<List<Contact>>(
-            future: ContactsService.getContacts(),
-            builder: (context, snapshot) {
-              final data = snapshot.data;
-              if (data == null || !snapshot.hasData) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
+      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+          stream: FirebaseFirestore.instance
+              .collection(FirebaseCollections.usersPath)
+              .snapshots(),
+          builder: (context, allUsers) {
+            final usersData = allUsers.data;
 
-              return ListView.separated(
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 20),
-                itemCount: data.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    tileColor: AppColors.greySecondaryLight,
-                    title: Text(
-                      '${data[index].displayName}',
-                      style: const TextStyle(color: AppColors.text),
-                    ),
-                    subtitle: Text(
-                      '${data[index].phones?.first.value}',
-                      style: const TextStyle(color: AppColors.text),
-                    ),
-                  );
-                },
+            if (!allUsers.hasData || usersData == null) {
+              return const Center(
+                child: CircularProgressIndicator(),
               );
-            },
-          );
-        }
+            }
+            final phonesFomFire = usersData.docs.map<String>((e) {
+              return (e.get('phone') as String? ?? '-1').replaceAll(' ', '');
+            }).toList();
 
-        return Text('data');
-      }),
+            print(phonesFomFire);
+
+            return FutureBuilder<PermissionStatus>(
+                future: _getContactPermission(),
+                builder: (context, d) {
+                  final dd = d.data;
+                  print(dd);
+
+                  if (!d.hasData || dd == null) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  if (dd.isGranted) {
+                    return FutureBuilder<List<Contact>>(
+                      future: ContactsService.getContacts(),
+                      builder: (context, snapshot) {
+                        final data = snapshot.data;
+                        if (data == null || !snapshot.hasData) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        final normalContact = data
+                            .where(
+                              (el) =>
+                                  el.displayName != null &&
+                                  el.phones != null &&
+                                  el.phones!.isNotEmpty &&
+                                  phonesFomFire.contains(el.phones!.first.value!
+                                      .replaceAll(' ', '')),
+                            )
+                            .toList();
+
+                      
+
+                        return ListView.separated(
+                          itemCount: normalContact.length,
+                          padding: EdgeInsets.all(16),
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 20),
+                          itemBuilder: (context, index) {
+                            final contact = normalContact[index];
+                            final phones = contact.phones;
+                            // final img = usersData.docs.firstWhere()
+
+                            return ListTile(
+                              leading: const CircleAvatar(
+                                backgroundColor: AppColors.message,
+                              ),
+                              tileColor: AppColors.greySecondaryLight,
+                              title: Text(
+                                '${contact.displayName}',
+                                style: const TextStyle(color: AppColors.text),
+                              ),
+                              subtitle: Text(
+                                '${phones?.first.value}',
+                                style: const TextStyle(color: AppColors.text),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  }
+
+                  return Text('data');
+                });
+          }),
     );
   }
 }

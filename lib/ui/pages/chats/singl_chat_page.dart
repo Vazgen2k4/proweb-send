@@ -24,94 +24,94 @@ class SinglChatPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Hero(
-      tag: chatId,
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          centerTitle: true,
-          title: const Text(
-            'Чаты',
-            style: TextStyle(
-              fontSize: 22,
-              height: 28 / 22,
-              color: AppColors.text,
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        title: const Text(
+          'Чаты',
+          style: TextStyle(
+            fontSize: 22,
+            height: 28 / 22,
+            color: AppColors.text,
           ),
-          actions: [
-            CircleAvatar(
+        ),
+        actions: [
+          Hero(
+             tag: chatId,
+            child: CircleAvatar(
               backgroundColor: AppColors.akcentLight,
               radius: 24,
               backgroundImage: imgPath != null ? NetworkImage(imgPath!) : null,
             ),
-          ],
-        ),
-        body: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-          future: FirebaseFirestore.instance
-              .collection(FirebaseCollections.chatPath)
-              .doc(chatId)
-              .get(),
-          builder: (context, init) {
-            if (init.connectionState != ConnectionState.done) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-
-            return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>?>(
-              initialData: init.data,
-              stream: FirebaseFirestore.instance
-                  .collection(FirebaseCollections.chatPath)
-                  .doc(chatId)
-                  .snapshots(includeMetadataChanges: true),
-              builder: (context, snapshot) {
-                final chatData = snapshot.data;
-
-                if (chatData == null || !snapshot.hasData) {
-                  return const Center();
-                }
-                final chat = ChatModel.fromJson(chatData.data() ?? {});
-                final messages = chat.messages ?? [];
-
-                if (messages.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'Начните общение с пользователем\n $contactName',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: AppColors.text,
-                      ),
-                    ),
-                  );
-                }
-
-                return ChatMessageWidget(
-                  messages: messages,
-                );
-              },
-            );
-          },
-        ),
-        bottomSheet: Container(
-          color: AppColors.greyPrimary,
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.add_circle_outline_outlined,
-                  color: AppColors.textInfo,
-                  size: 30,
-                ),
-              ),
-              const SizedBox(width: 8),
-              EnterInput(chatId: chatId),
-              const SizedBox(width: 8),
-              SendSwichButton(chatId: chatId),
-            ],
           ),
+        ],
+      ),
+      body: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+        future: FirebaseFirestore.instance
+            .collection(FirebaseCollections.chatPath)
+            .doc(chatId)
+            .get(),
+        builder: (context, init) {
+          if (init.connectionState != ConnectionState.done) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>?>(
+            initialData: init.data,
+            stream: FirebaseFirestore.instance
+                .collection(FirebaseCollections.chatPath)
+                .doc(chatId)
+                .snapshots(includeMetadataChanges: true),
+            builder: (context, snapshot) {
+              final chatData = snapshot.data;
+
+              if (chatData == null || !snapshot.hasData) {
+                return const Center();
+              }
+              final chat = ChatModel.fromJson(chatData.data() ?? {});
+              final messages = chat.messages ?? [];
+
+              if (messages.isEmpty) {
+                return Center(
+                  child: Text(
+                    'Начните общение с пользователем\n $contactName',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.text,
+                    ),
+                  ),
+                );
+              }
+
+              return ChatMessageWidget(
+                messages: messages,
+              );
+            },
+          );
+        },
+      ),
+      bottomSheet: Container(
+        color: AppColors.greyPrimary,
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(
+                Icons.add_circle_outline_outlined,
+                color: AppColors.textInfo,
+                size: 30,
+              ),
+            ),
+            const SizedBox(width: 8),
+            EnterInput(chatId: chatId),
+            const SizedBox(width: 8),
+            SendSwichButton(chatId: chatId),
+          ],
         ),
       ),
     );

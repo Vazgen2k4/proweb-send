@@ -129,7 +129,7 @@ class ProUserController {
   String get phone {
     final _code = _countryCode.trim();
     final _number = _phoneController.value.text.trim();
-    return _code + _number;
+    return _code + ' ' + _number;
   }
 
   // Сетер кода страны
