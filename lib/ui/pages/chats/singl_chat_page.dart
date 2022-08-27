@@ -52,7 +52,6 @@ class SinglChatPage extends StatelessWidget {
           builder: (context, snapshot) {
             final chatData = snapshot.data;
 
-            print(snapshot.hasData);
             if (chatData == null) {
               return const Center(
                 child: CircularProgressIndicator(),
