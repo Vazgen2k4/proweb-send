@@ -327,59 +327,70 @@ class MessageWidget extends StatelessWidget {
             ? 16.0
             : paddingValue;
 
-    return Align(
-      alignment: itsMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment:
-            itsMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        children: <Widget>[
-          AnimatedContainer(
-            padding: EdgeInsets.all(padding),
-            constraints: BoxConstraints(maxWidth: maxWidth),
-            duration: const Duration(milliseconds: 300),
-            decoration: BoxDecoration(
-              color: !itsMe ? const Color(0xffe2e2e2) : null,
-              gradient: itsMe
-                  ? const LinearGradient(
-                      colors: [
-                        Color(0xffD6B3F1),
-                        Color(0xffAEC4EF),
-                      ],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    )
-                  : null,
-              borderRadius: itsMe
-                  ? BorderRadius.only(
-                      bottomLeft: Radius.circular(borderRadius),
-                      topLeft: Radius.circular(borderRadius),
-                      topRight: Radius.circular(borderRadius),
-                    )
-                  : BorderRadius.only(
-                      bottomRight: Radius.circular(borderRadius),
-                      topLeft: Radius.circular(borderRadius),
-                      topRight: Radius.circular(borderRadius),
-                    ),
-            ),
-            child: Text(
-              message,
-              style: TextStyle(
-                fontSize: fontSize,
-                height: 1.21,
-                color: const Color(0xff151515),
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 400),
+      tween: Tween<double>(begin: 1.0, end: 0.0),
+      builder: (context, value, child) {
+        return AnimatedSlide(
+          offset: Offset(itsMe ? value : -value, 0),
+          duration: const Duration(milliseconds: 100),
+          child: child,
+        );
+      },
+      child: Align(
+        alignment: itsMe ? Alignment.centerRight : Alignment.centerLeft,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment:
+              itsMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: <Widget>[
+            AnimatedContainer(
+              padding: EdgeInsets.all(padding),
+              constraints: BoxConstraints(maxWidth: maxWidth),
+              duration: const Duration(milliseconds: 300),
+              decoration: BoxDecoration(
+                color: !itsMe ? const Color(0xffe2e2e2) : null,
+                gradient: itsMe
+                    ? const LinearGradient(
+                        colors: [
+                          Color(0xffD6B3F1),
+                          Color(0xffAEC4EF),
+                        ],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      )
+                    : null,
+                borderRadius: itsMe
+                    ? BorderRadius.only(
+                        bottomLeft: Radius.circular(borderRadius),
+                        topLeft: Radius.circular(borderRadius),
+                        topRight: Radius.circular(borderRadius),
+                      )
+                    : BorderRadius.only(
+                        bottomRight: Radius.circular(borderRadius),
+                        topLeft: Radius.circular(borderRadius),
+                        topRight: Radius.circular(borderRadius),
+                      ),
+              ),
+              child: Text(
+                message,
+                style: TextStyle(
+                  fontSize: fontSize,
+                  height: 1.21,
+                  color: const Color(0xff151515),
+                ),
               ),
             ),
-          ),
-          Text(
-            time,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 10,
-              height: 24 / 10,
+            Text(
+              time,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                height: 24 / 10,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

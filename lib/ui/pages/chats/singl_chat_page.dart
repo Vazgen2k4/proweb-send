@@ -1,14 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:proweb_send/domain/bloc/settings_bloc/settings_bloc.dart';
 import 'package:proweb_send/domain/firebase/firebase_collections.dart';
 import 'package:proweb_send/domain/models/chat_model.dart';
+import 'package:proweb_send/domain/models/settings_model.dart';
 import 'package:proweb_send/ui/pages/settings/settings_theme_page.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
-import 'package:proweb_send/ui/widgets/bg_container.dart';
+
+class Some {
+  static final listController = ScrollController();
+  static final textController = TextEditingController();
+}
 
 class SinglChatPage extends StatelessWidget {
   final String chatId;
@@ -45,44 +51,54 @@ class SinglChatPage extends StatelessWidget {
             ),
           ],
         ),
-        body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-          stream: FirebaseFirestore.instance
-              .collection(FirebaseCollections.chatPath)
-              .doc(chatId)
-              .snapshots(includeMetadataChanges: true),
-          builder: (context, snapshot) {
-            final chatData = snapshot.data;
+        body: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+          future: FirebaseFirestore.instance
+                  .collection(FirebaseCollections.chatPath)
+                  .doc(chatId).get(),
+          builder: (context, init) {
+            return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>?>(
+              initialData: init.data,
+              stream: FirebaseFirestore.instance
+                  .collection(FirebaseCollections.chatPath)
+                  .doc(chatId)
+                  .snapshots(includeMetadataChanges: true),
+              builder: (context, snapshot) {
+                print('update');
+                final chatData = snapshot.data;
 
-            print(snapshot.hasData);
-            if (chatData == null) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            final chat = ChatModel.fromJson(chatData.data() ?? {});
-            final messages = chat.messages ?? [];
+                print(snapshot.connectionState);
+                if (chatData == null) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                final chat = ChatModel.fromJson(chatData.data() ?? {});
+                final messages = chat.messages ?? [];
 
-            if (messages.isEmpty) {
-              return Center(
-                child: Text(
-                  'Начните общение с пользователем\n $contactName',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: AppColors.text,
-                  ),
-                ),
-              );
-            }
+                if (messages.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'Начните общение с пользователем\n $contactName',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: AppColors.text,
+                      ),
+                    ),
+                  );
+                }
 
-            return ChatMessageWidget(
-              messages: messages,
+                return ChatMessageWidget(
+                  messages: messages,
+                );
+              },
             );
-          },
+          }
         ),
         bottomSheet: Container(
           color: AppColors.greyPrimary,
           padding: const EdgeInsets.all(16),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               IconButton(
                 onPressed: () {},
@@ -126,36 +142,60 @@ class ChatMessageWidget extends StatelessWidget {
           return const SizedBox();
         }
 
-        return AnimatedList(
-          padding: const EdgeInsets.only(
-            bottom: 100,
-            left: 16,
-            top: 16,
-            right: 16,
-          ),
-          // separatorBuilder: (context, index) => const SizedBox(height: 16),
-          initialItemCount: messages.length,
-          itemBuilder: (context, index, animation) {
-            final message = messages[index];
-            final myUid = FirebaseAuth.instance.currentUser?.uid;
-            final date = DateTime.fromMillisecondsSinceEpoch(message.time ?? 0);
-
-            final time = DateFormat('HH:mm').format(date);
-
-            return MessageWidget(
-              message: message.content ?? 'Ошибка',
-              itsMe: myUid == message.userId,
-              time: time,
-              settings: state.settings,
-            );
-          },
+        return ChatList(
+          messages: messages,
+          settings: state.settings,
         );
       },
     );
   }
 }
 
-class EnterInput extends StatelessWidget {
+class ChatList extends StatelessWidget {
+  final SettingsModel settings;
+  const ChatList({
+    Key? key,
+    required this.messages,
+    required this.settings,
+  }) : super(key: key);
+
+  final List<Message> messages;
+
+  @override
+  Widget build(BuildContext context) {
+    final _reverse = messages.reversed.toList();
+    
+    return ListView.separated(
+      reverse: true,
+      controller: Some.listController,
+      padding: const EdgeInsets.only(
+        bottom: 100,
+        left: 16,
+        top: 16,
+        right: 16,
+      ),
+      separatorBuilder: (context, index) => const SizedBox(height: 16),
+      itemCount: _reverse.length,
+      itemBuilder: (context, index) {
+        final message = _reverse[index];
+        final myUid = FirebaseAuth.instance.currentUser?.uid;
+        final date = DateTime.fromMillisecondsSinceEpoch(message.time ?? 0);
+
+        final time = DateFormat('HH:mm').format(date);
+
+        return MessageWidget(
+          // key: ValueKey<int>(index),
+          message: message.content ?? 'Ошибка',
+          itsMe: myUid == message.userId,
+          time: time,
+          settings: settings,
+        );
+      },
+    );
+  }
+}
+
+class EnterInput extends StatefulWidget {
   final String chatId;
   const EnterInput({
     Key? key,
@@ -163,47 +203,100 @@ class EnterInput extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<EnterInput> createState() => _EnterInputState();
+}
+
+class _EnterInputState extends State<EnterInput> {
+  bool haveMessage = false;
+
+  @override
+  void initState() {
+    super.initState();
+    haveMessage = Some.textController.value.text.trim().isNotEmpty;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: TextField(
-        style: const TextStyle(fontSize: 16, color: AppColors.text),
-        decoration: InputDecoration(
-          floatingLabelStyle: const TextStyle(color: Colors.transparent),
-          fillColor: AppColors.greySecondaryLight,
-          filled: true,
-          labelText: 'Сообщение',
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 8,
-            horizontal: 16,
+      child: Stack(
+        children: [
+          TextField(
+            textCapitalization: TextCapitalization.sentences,
+            controller: Some.textController,
+            maxLines: 10,
+            minLines: 1,
+            style: const TextStyle(fontSize: 16, color: AppColors.text),
+            cursorColor: AppColors.text,
+            decoration: InputDecoration(
+              floatingLabelStyle: const TextStyle(color: Colors.transparent),
+              fillColor: AppColors.greySecondaryLight,
+              filled: true,
+              labelText: 'Сообщение',
+              contentPadding: const EdgeInsets.only(
+                top: 4,
+                bottom: 4,
+                left: 16,
+                right: 40,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+                borderSide: BorderSide.none,
+              ),
+            ),
+            onChanged: (value) {
+              setState(() {
+                haveMessage = value.trim().isNotEmpty;
+              });
+            },
           ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide.none,
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 300),
+              opacity: haveMessage ? 1 : 0,
+              child: IconButton(
+                onPressed: () async {
+                  if (!haveMessage) return;
+                  final text = Some.textController.value.text.trim();
+
+                  if (text.isEmpty) return;
+                  final uid = FirebaseAuth.instance.currentUser?.uid;
+                  if (uid == null) return;
+                  final mess = Message(
+                    time: DateTime.now().millisecondsSinceEpoch,
+                    content: text,
+                    userId: uid,
+                  );
+
+                  final chatData = await FirebaseFirestore.instance
+                      .collection(FirebaseCollections.chatPath)
+                      .doc(widget.chatId)
+                      .get();
+
+                  final chat = ChatModel.fromJson(chatData.data() ?? {});
+                  chat.messages?.add(mess);
+
+                  await FirebaseFirestore.instance
+                      .collection(FirebaseCollections.chatPath)
+                      .doc(widget.chatId)
+                      .set(chat.toJson());
+                  await Some.listController.animateTo(
+                    -100,
+                    curve: Curves.linear,
+                    duration: const Duration(milliseconds: 500),
+                  );
+
+                  Some.textController.clear();
+                },
+                icon: const Icon(
+                  Icons.send_rounded,
+                  color: AppColors.text,
+                ),
+              ),
+            ),
           ),
-        ),
-        onSubmitted: (value) async {
-          if (value.trim().isEmpty) return;
-          final uid = FirebaseAuth.instance.currentUser?.uid;
-          if (uid == null) return;
-          final mess = Message(
-            time: DateTime.now().millisecondsSinceEpoch,
-            content: value,
-            userId: uid,
-          );
-
-          final chatData = await FirebaseFirestore.instance
-              .collection(FirebaseCollections.chatPath)
-              .doc(chatId)
-              .get();
-
-          final chat = ChatModel.fromJson(chatData.data() ?? {});
-          chat.messages?.add(mess);
-
-          await FirebaseFirestore.instance
-              .collection(FirebaseCollections.chatPath)
-              .doc(chatId)
-              .set(chat.toJson());
-        },
+        ],
       ),
     );
   }
