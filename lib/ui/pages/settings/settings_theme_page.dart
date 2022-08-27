@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:proweb_send/domain/bloc/settings_bloc/settings_bloc.dart';
@@ -97,9 +99,9 @@ class SettingsThemePage extends StatelessWidget {
                   traling: SizedBox(
                     height: 20,
                     child: Switch(
-                      // splashRadius: 100,
                       trackColor: MaterialStateProperty.all(
-                          const Color(0xff5856D6).withOpacity(.5)),
+                        const Color(0xff5856D6).withOpacity(.5),
+                      ),
                       thumbColor:
                           MaterialStateProperty.all(const Color(0xff5856D6)),
                       value: true,
@@ -182,12 +184,14 @@ class MessengerControllWidget extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   children: <Widget>[
                     MessageWidget(
+                      key: UniqueKey(),
                       itsMe: true,
                       message: 'Добрый день',
                       time: '4:18',
                       settings: settings,
                     ),
                     MessageWidget(
+                      key: UniqueKey(),
                       itsMe: false,
                       message: 'Да, здравствуйте ',
                       time: '4:18',
@@ -327,60 +331,159 @@ class MessageWidget extends StatelessWidget {
             ? 16.0
             : paddingValue;
 
-    return Align(
-      alignment: itsMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment:
-            itsMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        children: <Widget>[
-          AnimatedContainer(
-            padding: EdgeInsets.all(padding),
-            constraints: BoxConstraints(maxWidth: maxWidth),
-            duration: const Duration(milliseconds: 300),
-            decoration: BoxDecoration(
-              color: !itsMe ? const Color(0xffe2e2e2) : null,
-              gradient: itsMe
-                  ? const LinearGradient(
-                      colors: [
-                        Color(0xffD6B3F1),
-                        Color(0xffAEC4EF),
-                      ],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    )
-                  : null,
-              borderRadius: itsMe
-                  ? BorderRadius.only(
-                      bottomLeft: Radius.circular(borderRadius),
-                      topLeft: Radius.circular(borderRadius),
-                      topRight: Radius.circular(borderRadius),
-                    )
-                  : BorderRadius.only(
-                      bottomRight: Radius.circular(borderRadius),
-                      topLeft: Radius.circular(borderRadius),
-                      topRight: Radius.circular(borderRadius),
-                    ),
-            ),
-            child: Text(
-              message,
-              style: TextStyle(
-                fontSize: fontSize,
-                height: 1.21,
-                color: const Color(0xff151515),
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 300),
+      tween: Tween<double>(begin: 0.0, end: 1.0),
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: child,
+        );
+      },
+      child: Align(
+        alignment: itsMe ? Alignment.centerRight : Alignment.centerLeft,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment:
+              itsMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: <Widget>[
+            ClipPath(
+              clipper: MessageClipper(itsMe: itsMe, radius: borderRadius),
+              child: AnimatedContainer(
+                padding: EdgeInsets.only(
+                  bottom: padding,
+                  top: padding,
+                  left: !itsMe ? padding + 4 : padding,
+                  right: itsMe ? padding + 4 : padding,
+                ),
+                constraints: BoxConstraints(maxWidth: maxWidth),
+                duration: const Duration(milliseconds: 300),
+                color: itsMe ? AppColors.message : AppColors.messageSecondary,
+                child: Text(
+                  message,
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    height: 1.21,
+                    color: const Color(0xff151515),
+                  ),
+                ),
               ),
             ),
-          ),
-          Text(
-            time,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 10,
-              height: 24 / 10,
+            Text(
+              time,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                height: 24 / 10,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+}
+
+class MessageClipper extends CustomClipper<Path> {
+  final bool itsMe;
+  final double radius;
+  const MessageClipper({
+    required this.itsMe,
+    required this.radius,
+  });
+
+  @override
+  getClip(Size size) {
+    const cilpWidth = 4.0;
+
+    if (itsMe) {
+      Path path = Path()
+        ..lineTo(size.width - radius - cilpWidth, 0)
+        ..arcTo(
+          Rect.fromCircle(
+            center: Offset(size.width - radius - cilpWidth, radius),
+            radius: radius,
+          ),
+          -pi / 2, // startAngle,
+          pi / 2, // sweepAngle,
+          false, // forceMoveTo,
+        )
+        ..lineTo(size.width - cilpWidth, size.height - radius)
+        ..lineTo(size.width - cilpWidth + .5, size.height - 5.5)
+        ..lineTo(size.width - cilpWidth + 2, size.height - 2.5)
+        ..lineTo(size.width - cilpWidth + 4, size.height)
+        ..lineTo(radius, size.height)
+        ..arcTo(
+          Rect.fromCircle(
+            center: Offset(radius, size.height - radius),
+            radius: radius,
+          ),
+          pi / 2, // startAngle,
+          pi / 2, // sweepAngle,
+          false, // forceMoveTo,
+        )
+        ..lineTo(0, radius)
+        ..arcTo(
+          Rect.fromCircle(
+            center: Offset(radius, radius),
+            radius: radius,
+          ),
+          pi, // startAngle,
+          pi / 2, // sweepAngle,
+          false, // forceMoveTo,
+        );
+
+      return path;
+    }
+
+    Path path = Path()
+      ..lineTo(size.width - radius, 0)
+      ..arcTo(
+        Rect.fromCircle(
+          center: Offset(size.width - radius, radius),
+          radius: radius,
+        ),
+        -pi / 2, // startAngle,
+        pi / 2, // sweepAngle,
+        false, // forceMoveTo,
+      )
+      ..lineTo(size.width + cilpWidth, size.height - radius)
+      ..arcTo(
+        Rect.fromCircle(
+          center: Offset(size.width - radius, size.height - radius),
+          radius: radius,
+        ),
+        0, // startAngle,
+        pi / 2, // sweepAngle,
+        false, // forceMoveTo,
+      )
+      ..lineTo(0, size.height)
+      ..lineTo(2, size.height - 2)
+      ..lineTo(3.5, size.height - 5.5)
+      // ..lineTo(size.width + 4, size.height)
+      // ..arcTo(
+      //   Rect.fromCircle(
+      //     center: Offset(radius, size.height - radius),
+      //     radius: radius,
+      //   ),
+      //   pi / 2, // startAngle,
+      //   pi / 2, // sweepAngle,
+      //   false, // forceMoveTo,
+      // )
+      ..lineTo(cilpWidth, size.height - 8)
+      ..arcTo(
+        Rect.fromCircle(
+          center: Offset(radius + cilpWidth, radius),
+          radius: radius,
+        ),
+        pi, // startAngle,
+        pi / 2, // sweepAngle,
+        false, // forceMoveTo,
+      );
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper oldClipper) => false;
 }

@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:proweb_send/domain/models/chat_model.dart';
 import 'package:proweb_send/generated/l10n.dart';
 
 class ProUser extends Equatable {

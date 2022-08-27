@@ -3,9 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:proweb_send/domain/bloc/chats/chats_bloc.dart';
 import 'package:proweb_send/domain/bloc/settings_bloc/settings_bloc.dart';
 import 'package:proweb_send/domain/firebase/firebase_collections.dart';
 import 'package:proweb_send/domain/models/chat_model.dart';
+import 'package:proweb_send/domain/models/settings_model.dart';
 import 'package:proweb_send/ui/pages/settings/settings_theme_page.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
 
@@ -44,36 +46,49 @@ class SinglChatPage extends StatelessWidget {
             ),
           ],
         ),
-        body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-          stream: FirebaseFirestore.instance
+        body: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+          future: FirebaseFirestore.instance
               .collection(FirebaseCollections.chatPath)
               .doc(chatId)
-              .snapshots(includeMetadataChanges: true),
-          builder: (context, snapshot) {
-            final chatData = snapshot.data;
-
-            if (chatData == null) {
+              .get(),
+          builder: (context, init) {
+            if (init.connectionState != ConnectionState.done) {
               return const Center(
                 child: CircularProgressIndicator(),
               );
             }
-            final chat = ChatModel.fromJson(chatData.data() ?? {});
-            final messages = chat.messages ?? [];
 
-            if (messages.isEmpty) {
-              return Center(
-                child: Text(
-                  'Начните общение с пользователем\n $contactName',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: AppColors.text,
-                  ),
-                ),
-              );
-            }
+            return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>?>(
+              initialData: init.data,
+              stream: FirebaseFirestore.instance
+                  .collection(FirebaseCollections.chatPath)
+                  .doc(chatId)
+                  .snapshots(includeMetadataChanges: true),
+              builder: (context, snapshot) {
+                final chatData = snapshot.data;
 
-            return ChatMessageWidget(
-              messages: messages,
+                if (chatData == null || !snapshot.hasData) {
+                  return const Center();
+                }
+                final chat = ChatModel.fromJson(chatData.data() ?? {});
+                final messages = chat.messages ?? [];
+
+                if (messages.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'Начните общение с пользователем\n $contactName',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: AppColors.text,
+                      ),
+                    ),
+                  );
+                }
+
+                return ChatMessageWidget(
+                  messages: messages,
+                );
+              },
             );
           },
         ),
@@ -81,6 +96,7 @@ class SinglChatPage extends StatelessWidget {
           color: AppColors.greyPrimary,
           padding: const EdgeInsets.all(16),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               IconButton(
                 onPressed: () {},
@@ -91,16 +107,9 @@ class SinglChatPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.sentiment_satisfied_alt,
-                  color: AppColors.textInfo,
-                  size: 30,
-                ),
-              ),
-              const SizedBox(width: 8),
               EnterInput(chatId: chatId),
+              const SizedBox(width: 8),
+              SendSwichButton(chatId: chatId),
             ],
           ),
         ),
@@ -124,35 +133,59 @@ class ChatMessageWidget extends StatelessWidget {
           return const SizedBox();
         }
 
-        return AnimatedList(
-          padding: const EdgeInsets.only(
-            bottom: 100,
-            left: 16,
-            top: 16,
-            right: 16,
-          ),
-          initialItemCount: messages.length,
-          itemBuilder: (context, index, animation) {
-            final message = messages[index];
-            final myUid = FirebaseAuth.instance.currentUser?.uid;
-            final date = DateTime.fromMillisecondsSinceEpoch(message.time ?? 0);
-
-            final time = DateFormat('HH:mm').format(date);
-
-            return MessageWidget(
-              message: message.content ?? 'Ошибка',
-              itsMe: myUid == message.userId,
-              time: time,
-              settings: state.settings,
-            );
-          },
+        return ChatList(
+          messages: messages,
+          settings: state.settings,
         );
       },
     );
   }
 }
 
-class EnterInput extends StatelessWidget {
+class ChatList extends StatelessWidget {
+  final SettingsModel settings;
+  const ChatList({
+    Key? key,
+    required this.messages,
+    required this.settings,
+  }) : super(key: key);
+
+  final List<Message> messages;
+
+  @override
+  Widget build(BuildContext context) {
+    final _reverse = messages.reversed.toList();
+
+    return ListView.separated(
+      reverse: true,
+      controller: ChatController.listController,
+      padding: const EdgeInsets.only(
+        bottom: 100,
+        left: 16,
+        top: 16,
+        right: 16,
+      ),
+      separatorBuilder: (context, index) => const SizedBox(height: 16),
+      itemCount: _reverse.length,
+      itemBuilder: (context, index) {
+        final message = _reverse[index];
+        final myUid = FirebaseAuth.instance.currentUser?.uid;
+        final date = DateTime.fromMillisecondsSinceEpoch(message.time ?? 0);
+
+        final time = DateFormat('HH:mm').format(date);
+
+        return MessageWidget(
+          message: message.content ?? 'Ошибка',
+          itsMe: myUid == message.userId,
+          time: time,
+          settings: settings,
+        );
+      },
+    );
+  }
+}
+
+class EnterInput extends StatefulWidget {
   final String chatId;
   const EnterInput({
     Key? key,
@@ -160,48 +193,115 @@ class EnterInput extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<EnterInput> createState() => _EnterInputState();
+}
+
+class _EnterInputState extends State<EnterInput> {
+  bool haveMessage = false;
+
+  @override
+  void initState() {
+    super.initState();
+    haveMessage = !ChatController.textIsEmpty;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Expanded(
       child: TextField(
+        textCapitalization: TextCapitalization.sentences,
+        controller: ChatController.textController,
+        maxLines: 10,
+        minLines: 1,
         style: const TextStyle(fontSize: 16, color: AppColors.text),
-        decoration: InputDecoration(
-          floatingLabelStyle: const TextStyle(color: Colors.transparent),
-          fillColor: AppColors.greySecondaryLight,
-          filled: true,
+        cursorColor: AppColors.text,
+        decoration: const InputDecoration(
+          floatingLabelStyle: TextStyle(color: AppColors.text),
+          labelStyle: TextStyle(color: AppColors.greySecondaryLight),
           labelText: 'Сообщение',
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 8,
-            horizontal: 16,
+          contentPadding: EdgeInsets.only(
+            bottom: 12,
           ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide.none,
-          ),
+          border: InputBorder.none,
         ),
-        onSubmitted: (value) async {
-          if (value.trim().isEmpty) return;
-          final uid = FirebaseAuth.instance.currentUser?.uid;
-          if (uid == null) return;
-          final mess = Message(
-            time: DateTime.now().millisecondsSinceEpoch,
-            content: value,
-            userId: uid,
-          );
-
-          final chatData = await FirebaseFirestore.instance
-              .collection(FirebaseCollections.chatPath)
-              .doc(chatId)
-              .get();
-
-          final chat = ChatModel.fromJson(chatData.data() ?? {});
-          chat.messages?.add(mess);
-
-          await FirebaseFirestore.instance
-              .collection(FirebaseCollections.chatPath)
-              .doc(chatId)
-              .set(chat.toJson());
+        onChanged: (value) {
+          setState(() {
+            haveMessage = value.trim().isNotEmpty;
+          });
         },
       ),
     );
   }
 }
+
+class SendSwichButton extends StatefulWidget {
+  final String chatId;
+  const SendSwichButton({
+    Key? key,
+    required this.chatId,
+  }) : super(key: key);
+
+  @override
+  State<SendSwichButton> createState() => _SendSwichButtonState();
+}
+
+class _SendSwichButtonState extends State<SendSwichButton> {
+  bool canSend = true;
+
+  @override
+  void initState() {
+    super.initState();
+    ChatController.textController.addListener(() {
+      if(mounted) {
+
+      canSend = ChatController.textIsEmpty;
+      setState(() {});
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final _btns = <IconButton>[
+      IconButton(
+        key: const ValueKey(1),
+        onPressed: () {},
+        icon: const Icon(
+          Icons.sentiment_satisfied_alt,
+          color: AppColors.textInfo,
+          size: 30,
+        ),
+      ),
+      IconButton(
+        key: const ValueKey(2),
+        onPressed: () {
+          context.read<ChatsBloc>().add(SendMessage(chatId: widget.chatId));
+        },
+        icon: const Icon(
+          Icons.send_rounded,
+          color: AppColors.text,
+        ),
+      ),
+    ];
+
+    return AnimatedSwitcher(
+      // layoutBuilder: ,
+      transitionBuilder: (child, animation) {
+        return ScaleTransition(
+          scale: animation,
+          child: child,
+        );
+      },
+      child: canSend ? _btns.first : _btns.last,
+      // crossFadeState: stateFade,
+      duration: const Duration(milliseconds: 150),
+    );
+  }
+}
+
+/* AnimatedOpacity(
+            duration: const Duration(milliseconds: 300),
+            opacity: haveMessage ? 1 : 0,
+            child: 
+          ),
+         */

@@ -3,7 +3,6 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:proweb_send/domain/models/pro_user.dart';
 import 'package:proweb_send/domain/models/settings_model.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 part 'settings_bloc_event.dart';
 part 'settings_bloc_state.dart';

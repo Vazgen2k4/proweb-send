@@ -119,78 +119,97 @@ class ChatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return FutureBuilder<ChatTileData?>(
       future: _getUser(),
-      builder: (context, snapshot) {
-        final data = snapshot.data;
-        if (!snapshot.hasData || data == null) {
+      builder: (context, init) {
+        final data = init.data;
+        if (!init.hasData || data == null) {
           return const Center(
             child: CircularProgressIndicator(),
           );
         }
         final imgPath = data.user?.imagePath;
 
-        final date =
-            DateTime.fromMillisecondsSinceEpoch(data.message?.time ?? 0);
-        final time = DateFormat('HH:mm').format(date);
-        return Hero(
-          tag: chatId,
-          child: BgContainer(
-            action: () {
-              Navigator.push(
-                context,
-                PageRouteBuilder(
-                  transitionDuration: const Duration(milliseconds: 500),
-                  pageBuilder: (_, __, ___) {
-                    return SinglChatPage(
-                      chatId: chatId,
-                      imgPath: imgPath,
-                      contactName: data.user?.name,
-                    );
-                  },
-                ),
+        return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+          stream: FirebaseFirestore.instance
+              .collection(FirebaseCollections.chatPath)
+              .doc(chatId)
+              .snapshots(),
+          builder: (context, snapshot) {
+            final chatData = snapshot.data;
+            if (!snapshot.hasData || chatData == null) {
+              return const Center(
+                child: CircularProgressIndicator(),
               );
-            },
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: AppColors.akcentLight,
-                radius: 28,
-                backgroundImage: imgPath != null ? NetworkImage(imgPath) : null,
-              ),
-              title: Text(
-                '${data.user?.name}',
-                style: const TextStyle(
-                  color: AppColors.text,
-                ),
-              ),
-              subtitle: Text(
-                '${data.message?.content}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppColors.textInfoSecondary,
-                  fontSize: 14,
-                  height: 1.5,
-                ),
-              ),
-              trailing: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    time,
+            }
+
+            final chat = ChatModel.fromJson(chatData.data() ?? {});
+            final _mes = chat.messages?.last;
+
+            final date = DateTime.fromMillisecondsSinceEpoch(_mes?.time ?? 0);
+            final time = DateFormat('HH:mm').format(date);
+
+            return Hero(
+              tag: chatId,
+              child: BgContainer(
+                action: () {
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      transitionDuration: const Duration(milliseconds: 500),
+                      pageBuilder: (_, __, ___) {
+                        return SinglChatPage(
+                          chatId: chatId,
+                          imgPath: imgPath,
+                          contactName: data.user?.name,
+                        );
+                      },
+                    ),
+                  );
+                },
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: AppColors.akcentLight,
+                    radius: 28,
+                    backgroundImage:
+                        imgPath != null ? NetworkImage(imgPath) : null,
+                  ),
+                  title: Text(
+                    '${data.user?.name}',
                     style: const TextStyle(
                       color: AppColors.text,
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  const Icon(
-                    Icons.done_all,
-                    size: 16,
-                    color: AppColors.akcentSecondaryLight,
+                  subtitle: Text(
+                    '${_mes?.content}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppColors.textInfoSecondary,
+                      fontSize: 14,
+                      height: 1.5,
+                    ),
                   ),
-                ],
+                  trailing: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        time,
+                        style: const TextStyle(
+                          color: AppColors.text,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      const Icon(
+                        Icons.done_all,
+                        size: 16,
+                        color: AppColors.akcentSecondaryLight,
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );

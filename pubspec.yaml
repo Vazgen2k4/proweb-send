@@ -30,6 +30,8 @@ dependencies:
   flutter_svg: ^1.1.1
   cupertino_icons: ^1.0.2
   file_picker: ^5.0.1
+  contacts_service: ^0.6.3
+  permission_handler: ^10.0.0
 
 dev_dependencies:
   flutter_test:

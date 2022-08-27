@@ -32,9 +32,10 @@ class AuthPageConfirm extends StatelessWidget {
 
             if (needCreate == null) return;
 
-            Navigator.pushNamed(
+            Navigator.pushNamedAndRemoveUntil(
               context,
               needCreate ? AppRoutes.register : AppRoutes.auth,
+              (_) => false,
             );
           },
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proweb_send/domain/bloc/auth_bloc/auth_bloc.dart';
 import 'package:proweb_send/ui/pages/chats/chats_page.dart';
+import 'package:proweb_send/ui/pages/contacts/contacts_page.dart';
 import 'package:proweb_send/ui/pages/settings/settings_page.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
 
@@ -35,11 +36,8 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     _content = [
-      ChatsPage(
-      ),
-      Container(
-        color: Colors.purple,
-      ),
+      const ChatsPage(),
+      const ContactsPage(),
       SettingsPage(pageController: pageController),
     ];
 
@@ -87,8 +85,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _pageChange(int index) async {
-    
-   pageController.jumpToPage(
+    pageController.jumpToPage(
       index,
     );
     setState(() {

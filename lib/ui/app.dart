@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:proweb_send/domain/bloc/auth_bloc/auth_bloc.dart';
+import 'package:proweb_send/domain/bloc/chats/chats_bloc.dart';
 import 'package:proweb_send/domain/bloc/settings_bloc/settings_bloc.dart';
 import 'package:proweb_send/generated/l10n.dart';
 import 'package:proweb_send/ui/router/app_navigator.dart';
@@ -19,6 +20,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<SettingsBloc>(
           create: (_) => SettingsBloc()..add(const LoadSettings()),
+        ),
+        BlocProvider<ChatsBloc>(
+          create: (_) => ChatsBloc()..add(const LoadChats()),
         ),
       ],
       child: const AppContent(),

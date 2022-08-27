@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 class ChatModel {
   List<Message>? messages;
   List<String>? users;
@@ -11,7 +13,7 @@ class ChatModel {
         messages!.add(Message.fromJson(v));
       });
     }
-    users = json['users'].cast<String>();
+    users = json['users']?.cast<String>() ?? [];
   }
 
   Map<String, dynamic> toJson() {
@@ -46,5 +48,18 @@ class Message {
     data['user-id'] = userId;
     data['visible'] = visible;
     return data;
+  }
+}
+
+class ChatController {
+  static final listController = ScrollController();
+  static final textController = TextEditingController();
+
+  static bool get textIsEmpty => textController.value.text.trim().isEmpty;
+
+  static Future<void> jumpDown({double offset = 0}) async {
+    listController.jumpTo(
+      0,
+    );
   }
 }
