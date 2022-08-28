@@ -11,14 +11,19 @@ class SettingsBlocInitial extends SettingsBlocState {}
 
 class SettingsBlocLoded extends SettingsBlocState {
   final SettingsModel settings;
-  const SettingsBlocLoded({required this.settings});
+  final ProUser user;
+  const SettingsBlocLoded({required this.settings, required this.user});
 
   @override
-  List<Object?> get props => [settings];
+  List<Object?> get props => [settings, user];
 
-  SettingsBlocLoded copyWith({SettingsModel? settings}) {
+  SettingsBlocLoded copyWith({
+    SettingsModel? settings,
+    ProUser? user,
+  }) {
     return SettingsBlocLoded(
       settings: settings ?? this.settings,
+      user: user ?? this.user,
     );
   }
 }

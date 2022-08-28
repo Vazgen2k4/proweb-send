@@ -32,6 +32,8 @@ dependencies:
   file_picker: ^5.0.1
   contacts_service: ^0.6.3
   permission_handler: ^10.0.0
+  firebase_messaging: ^13.0.0
+  skeleton_text: ^3.0.0
 
 dev_dependencies:
   flutter_test:

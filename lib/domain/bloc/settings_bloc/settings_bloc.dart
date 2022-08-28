@@ -1,6 +1,11 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:proweb_send/domain/firebase/firebase_collections.dart';
 import 'package:proweb_send/domain/models/pro_user.dart';
 import 'package:proweb_send/domain/models/settings_model.dart';
 
@@ -8,12 +13,24 @@ part 'settings_bloc_event.dart';
 part 'settings_bloc_state.dart';
 
 class SettingsBloc extends Bloc<SettingsBlocEvent, SettingsBlocState> {
+  late final Stream<DocumentSnapshot<Map<String, dynamic>>> _stream;
+  late final StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>
+      _subStream;
+
   SettingsBloc() : super(SettingsBlocInitial()) {
     on<LoadSettings>(_loadSettings);
     on<SetFontSize>(_setFontSize);
     on<SetBorderRadius>(_setBorderRadius);
     on<SetLocale>(_setLocale);
-    // on<SetUserData>(_setUserData);
+
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+
+    _stream = FirebaseFirestore.instance
+        .collection(FirebaseCollections.usersPath)
+        .doc(uid)
+        .snapshots();
+
+    _subStream = _stream.listen((_) => add(const LoadSettings()));
   }
 
   Future<void> _loadSettings(
@@ -21,8 +38,14 @@ class SettingsBloc extends Bloc<SettingsBlocEvent, SettingsBlocState> {
     Emitter<SettingsBlocState> emit,
   ) async {
     final settngs = await SettingsModel.getSettingsOnDevice();
+    final userDoc = await _stream.first;
 
-    emit(SettingsBlocLoded(settings: settngs));
+    emit(
+      SettingsBlocLoded(
+        settings: settngs,
+        user: ProUser.fromJson(userDoc.data()),
+      ),
+    );
   }
 
   Future<void> _setFontSize(
@@ -35,7 +58,7 @@ class SettingsBloc extends Bloc<SettingsBlocEvent, SettingsBlocState> {
     final fontSize = event.fontSize;
 
     emit(
-      SettingsBlocLoded(
+      state.copyWith(
         settings: state.settings.copyWith(
           fontSize: fontSize,
         ),
@@ -53,7 +76,7 @@ class SettingsBloc extends Bloc<SettingsBlocEvent, SettingsBlocState> {
     final radius = event.borderRadius;
 
     emit(
-      SettingsBlocLoded(
+      state.copyWith(
         settings: state.settings.copyWith(
           borderRadius: radius,
         ),
@@ -71,15 +94,14 @@ class SettingsBloc extends Bloc<SettingsBlocEvent, SettingsBlocState> {
     final locale = Locale(event.locale);
 
     emit(
-      SettingsBlocLoded(
+      state.copyWith(
         settings: state.settings.copyWith(
           locale: locale,
         ),
       ),
     );
   }
-  
-  
+
   // Future<void> _setUserData(
   //   SetUserData event,
   //   Emitter<SettingsBlocState> emit,
@@ -88,11 +110,16 @@ class SettingsBloc extends Bloc<SettingsBlocEvent, SettingsBlocState> {
 
   //   final state = this.state as SettingsBlocLoded;
 
-
   //   emit(
   //     SettingsBlocLoded(
-  
+
   //     ),
   //   );
   // }
+
+  @override
+  Future<void> close() {
+    _subStream.cancel();
+    return super.close();
+  }
 }

@@ -102,8 +102,9 @@ class SettingsThemePage extends StatelessWidget {
                       trackColor: MaterialStateProperty.all(
                         const Color(0xff5856D6).withOpacity(.5),
                       ),
-                      thumbColor:
-                          MaterialStateProperty.all(const Color(0xff5856D6)),
+                      thumbColor: MaterialStateProperty.all(
+                        const Color(0xff5856D6),
+                      ),
                       value: true,
                       onChanged: (value) {},
                     ),

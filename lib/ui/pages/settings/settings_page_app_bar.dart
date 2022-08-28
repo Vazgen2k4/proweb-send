@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:ui';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -32,18 +31,20 @@ class SettingsPageAppBar extends StatelessWidget {
     final isNewNik = user.nikNameId != userNik;
 
     if (isBusy && isNewNik) return;
-    final descr = ProUser.controller.descrController.value.text;
+    final descr = ProUser.controller.descrController.value.text
+        .trim().replaceAll('\n', '');
     final nikId = ProUser.controller.userNikNameController.value.text;
     final newUser = user.copyWith(descr: descr, nikNameId: nikId);
 
     await FirebaseCollections.addUserTo(
-        userId: uid, userData: newUser.toJson());
+      userId: uid,
+      userData: newUser.toJson(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-     
       actions: [
         Align(
           alignment: Alignment.centerLeft,

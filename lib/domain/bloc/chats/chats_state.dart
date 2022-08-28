@@ -10,14 +10,35 @@ abstract class ChatsState extends Equatable {
 class ChatsInitial extends ChatsState {}
 
 class ChatsLoaded extends ChatsState {
-  final List<String> chats;
+  final List<ChatTileData> chats;
+  final List<ChatModel> chatsData;
 
-  const ChatsLoaded({required this.chats});
+  const ChatsLoaded({
+    required this.chats,
+    required this.chatsData,
+  });
 
   @override
   List<Object> get props => [chats];
 
-  ChatsLoaded copyWith({List<String>? chats}) {
-    return ChatsLoaded(chats: chats ?? this.chats);
+  ChatsLoaded copyWith({
+    List<ChatTileData>? chats,
+    List<ChatModel>? chatsData,
+  }) {
+    return ChatsLoaded(
+      chats: chats ?? this.chats,
+      chatsData: chatsData ?? this.chatsData,
+    );
   }
+}
+
+class ChatTileData {
+  final ProUser? user;
+  final Message? message;
+  // final String chatId;
+
+  ChatTileData({
+    required this.user,
+    required this.message,
+  });
 }

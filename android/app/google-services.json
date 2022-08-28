@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "506661260102-vi278jl6e50ijtrs1kf25o67p02c89qp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.proweb.prochat",
+            "certificate_hash": "f05fd6e6c2dcb4a8a140c88a409b635d830ce4c5"
+          }
+        },
+        {
           "client_id": "506661260102-nfeuj82uectrck1qbuu5h45pkcuk8rov.apps.googleusercontent.com",
           "client_type": 3
         }

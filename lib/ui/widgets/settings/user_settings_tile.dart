@@ -12,6 +12,7 @@ class UserSettingsTile extends StatefulWidget {
   final TextEditingController controller;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
+  final bool isArea;
 
   const UserSettingsTile({
     Key? key,
@@ -19,11 +20,11 @@ class UserSettingsTile extends StatefulWidget {
     required this.defTitle,
     required this.subtitle,
     required this.controller,
-  
     this.dizabel = false,
     this.inputFormatters,
     this.keyboardType,
     this.hasOffset = false,
+    this.isArea = false,
     this.icon,
   }) : super(key: key);
 
@@ -58,6 +59,8 @@ class _UserSettingsTileState extends State<UserSettingsTile> {
               keyboardType: widget.keyboardType,
               inputFormatters: widget.inputFormatters,
               controller: widget.controller,
+              maxLines: widget.isArea ? null : 1,
+              maxLength: widget.isArea ? 70 : null,
               style: const TextStyle(
                 color: AppColors.text,
                 fontSize: 16,
@@ -65,7 +68,7 @@ class _UserSettingsTileState extends State<UserSettingsTile> {
               ),
               decoration: InputDecoration(
                 alignLabelWithHint: false,
-              
+                counterStyle: const TextStyle(color: AppColors.text),
                 contentPadding: EdgeInsets.zero,
                 floatingLabelStyle: const TextStyle(
                   color: AppColors.textInfo,

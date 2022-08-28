@@ -25,7 +25,7 @@ class UserDataSettingsWidget extends StatelessWidget {
       ProUser.controller.descrController,
     ];
 
-
+    print('Проверка');
     return BgContainer(
       padding: const EdgeInsets.only(
         left: 16,
@@ -44,7 +44,6 @@ class UserDataSettingsWidget extends StatelessWidget {
               defTitle: defValue[index],
               key: UniqueKey(),
               keyboardType: TextInputType.phone,
-            
               controller: _controls[index],
               icon: Transform.rotate(
                 angle: pi / 2,
@@ -60,8 +59,9 @@ class UserDataSettingsWidget extends StatelessWidget {
           }
 
           return UserSettingsTile(
-            defTitle: defValue[index],
             key: UniqueKey(),
+            isArea: index == 2,
+            defTitle: defValue[index],
             controller: _controls[index],
             hasOffset: true,
             title: titles[index].trim(),
