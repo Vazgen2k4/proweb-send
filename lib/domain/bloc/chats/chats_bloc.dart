@@ -4,12 +4,14 @@ import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:proweb_send/domain/firebase/firebase_collections.dart';
 import 'package:proweb_send/domain/models/chat_model.dart';
 import 'package:proweb_send/domain/models/pro_user.dart';
 
 part 'chats_event.dart';
 part 'chats_state.dart';
+
 
 class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
   late final Stream<QuerySnapshot<Map<String, dynamic>>> chatsStream;
@@ -21,7 +23,7 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
 
   ChatsBloc() : super(ChatsInitial()) {
     on<LoadChats>(_load);
-    on<SendMessage>(_send);
+
 
     usersStream = FirebaseFirestore.instance
         .collection(FirebaseCollections.usersPath)
@@ -56,7 +58,10 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
 
     final sortChatsData = allChats.docs
         .where((chatDoc) => _chats.contains(chatDoc.id))
-        .map<ChatModel>((chatDoc) => ChatModel.fromJson(chatDoc.data()))
+        .map<ChatModel>((chatDoc) => ChatModel.fromJson(
+              chatDoc.data(),
+              id: chatDoc.id,
+            ))
         .toList();
 
     final allUsers = await FirebaseFirestore.instance
@@ -83,36 +88,7 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
     ));
   }
 
-  Future<void> _send(
-    SendMessage event,
-    Emitter<ChatsState> emit,
-  ) async {
-    if (ChatController.textIsEmpty) return;
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return;
-    final mess = Message(
-      time: DateTime.now().millisecondsSinceEpoch,
-      content: ChatController.textController.value.text,
-      userId: uid,
-    );
-
-    final chatData = await FirebaseFirestore.instance
-        .collection(FirebaseCollections.chatPath)
-        .doc(event.chatId)
-        .get();
-
-    final chat = ChatModel.fromJson(chatData.data() ?? {});
-    chat.messages?.add(mess);
-
-    ChatController.textController.clear();
-
-    await FirebaseFirestore.instance
-        .collection(FirebaseCollections.chatPath)
-        .doc(event.chatId)
-        .set(chat.toJson());
-
-    await ChatController.jumpDown(offset: -100);
-  }
+ 
 
   @override
   Future<void> close() {

@@ -334,7 +334,7 @@ class MessageWidget extends StatelessWidget {
 
     return TweenAnimationBuilder<double>(
       duration: const Duration(milliseconds: 300),
-      tween: Tween<double>(begin: 0.0, end: 1.0),
+      tween: Tween<double>(begin: 1.0, end: 1.0),
       builder: (context, value, child) {
         return Opacity(
           opacity: value,

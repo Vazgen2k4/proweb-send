@@ -1,12 +1,17 @@
 import 'package:flutter/cupertino.dart';
 
 class ChatModel {
+  String id;
   List<Message>? messages;
   List<String>? users;
 
-  ChatModel({this.messages, this.users});
+  ChatModel({
+    this.messages,
+    this.users,
+    required this.id,
+  });
 
-  ChatModel.fromJson(Map<String, dynamic> json) {
+  ChatModel.fromJson(Map<String, dynamic> json, {required this.id}) {
     messages = <Message>[];
     if (json['message'] != null) {
       json['message'].forEach((v) {
@@ -54,12 +59,11 @@ class Message {
 class ChatController {
   static final listController = ScrollController();
   static final textController = TextEditingController();
+  static final myListKey = GlobalKey<AnimatedListState>();
 
   static bool get textIsEmpty => textController.value.text.trim().isEmpty;
 
   static Future<void> jumpDown({double offset = 0}) async {
-    listController.jumpTo(
-      0,
-    );
+    listController.jumpTo(0);
   }
 }

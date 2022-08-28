@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:proweb_send/domain/bloc/chats/chats_bloc.dart';
+import 'package:proweb_send/domain/bloc/message/message_bloc.dart';
 import 'package:proweb_send/domain/bloc/settings_bloc/settings_bloc.dart';
 import 'package:proweb_send/domain/firebase/firebase_collections.dart';
 import 'package:proweb_send/domain/models/chat_model.dart';
@@ -38,7 +39,7 @@ class SinglChatPage extends StatelessWidget {
         ),
         actions: [
           Hero(
-             tag: chatId,
+            tag: chatId,
             child: CircleAvatar(
               backgroundColor: AppColors.akcentLight,
               radius: 24,
@@ -71,7 +72,10 @@ class SinglChatPage extends StatelessWidget {
               if (chatData == null || !snapshot.hasData) {
                 return const Center();
               }
-              final chat = ChatModel.fromJson(chatData.data() ?? {});
+              final chat = ChatModel.fromJson(
+                chatData.data() ?? {},
+                id: chatId,
+              );
               final messages = chat.messages ?? [];
 
               if (messages.isEmpty) {
@@ -142,7 +146,7 @@ class ChatMessageWidget extends StatelessWidget {
   }
 }
 
-class ChatList extends StatelessWidget {
+class ChatList extends StatefulWidget {
   final SettingsModel settings;
   const ChatList({
     Key? key,
@@ -153,10 +157,23 @@ class ChatList extends StatelessWidget {
   final List<Message> messages;
 
   @override
-  Widget build(BuildContext context) {
-    final _reverse = messages.reversed.toList();
+  State<ChatList> createState() => _ChatListState();
+}
 
-    return ListView.separated(
+class _ChatListState extends State<ChatList> {
+  List<Message> _reverse = [];
+
+  @override
+  void initState() {
+    _reverse = widget.messages.reversed.toList();
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedList(
+      key: ChatController.myListKey,
       reverse: true,
       controller: ChatController.listController,
       padding: const EdgeInsets.only(
@@ -165,20 +182,22 @@ class ChatList extends StatelessWidget {
         top: 16,
         right: 16,
       ),
-      separatorBuilder: (context, index) => const SizedBox(height: 16),
-      itemCount: _reverse.length,
-      itemBuilder: (context, index) {
+      initialItemCount: _reverse.length,
+      itemBuilder: (context, index, animation) {
         final message = _reverse[index];
         final myUid = FirebaseAuth.instance.currentUser?.uid;
         final date = DateTime.fromMillisecondsSinceEpoch(message.time ?? 0);
 
         final time = DateFormat('HH:mm').format(date);
-
-        return MessageWidget(
-          message: message.content ?? 'Ошибка',
-          itsMe: myUid == message.userId,
-          time: time,
-          settings: settings,
+        final tween = Tween(begin: 0.0, end: 1.0);
+        return FadeTransition(
+          opacity: animation.drive(tween),
+          child: MessageWidget(
+            message: message.content ?? 'Ошибка',
+            itsMe: myUid == message.userId,
+            time: time,
+            settings: widget.settings,
+          ),
         );
       },
     );
@@ -252,10 +271,9 @@ class _SendSwichButtonState extends State<SendSwichButton> {
   void initState() {
     super.initState();
     ChatController.textController.addListener(() {
-      if(mounted) {
-
-      canSend = ChatController.textIsEmpty;
-      setState(() {});
+      if (mounted) {
+        canSend = ChatController.textIsEmpty;
+        setState(() {});
       }
     });
   }
@@ -275,7 +293,7 @@ class _SendSwichButtonState extends State<SendSwichButton> {
       IconButton(
         key: const ValueKey(2),
         onPressed: () {
-          context.read<ChatsBloc>().add(SendMessage(chatId: widget.chatId));
+          context.read<MessageBloc>().add(SendMessage(chatId: widget.chatId));
         },
         icon: const Icon(
           Icons.send_rounded,

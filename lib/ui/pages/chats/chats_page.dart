@@ -63,7 +63,7 @@ class ChatsPage extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return ChatTile(
                     data: chats[index],
-                    // chatId: ,
+                    chatId: state.chatsData[index].id,
                     
                   );
                 },
@@ -78,12 +78,12 @@ class ChatsPage extends StatelessWidget {
 
 class ChatTile extends StatelessWidget {
   final ChatTileData data;
-  // final String chatId;
+  final String chatId;
 
   const ChatTile({
     Key? key,
     required this.data,
-    // required this.chatId,
+    required this.chatId,
   }) : super(key: key);
 
   @override
@@ -95,24 +95,24 @@ class ChatTile extends StatelessWidget {
     final time = DateFormat('HH:mm').format(date);
     return BgContainer(
       action: () {
-        // Navigator.push(
-        //   context,
-        //   PageRouteBuilder(
-        //     transitionDuration: const Duration(milliseconds: 500),
-        //     pageBuilder: (_, __, ___) {
-        //       return SinglChatPage(
-        //         chatId: chatId,
-        //         imgPath: imgPath,
-        //         contactName: data.user?.name,
-        //       );
-        //     },
-        //   ),
-        // );
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            transitionDuration: const Duration(milliseconds: 500),
+            pageBuilder: (_, __, ___) {
+              return SinglChatPage(
+                chatId: chatId,
+                imgPath: imgPath,
+                contactName: data.user?.name,
+              );
+            },
+          ),
+        );
       },
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: ListTile(
         leading: Hero(
-          tag: 'data',
+          tag: chatId,
           child: CircleAvatar(
             backgroundColor: AppColors.akcentLight,
             radius: 28,
@@ -234,7 +234,7 @@ class ChatsSceletonLoader extends StatelessWidget {
 
   SkeletonAnimation _anim({required Widget child}) {
     const _color = AppColors.message;
-    const _duration = 200;
+    const _duration = 1900;
     return SkeletonAnimation(
       gradientColor: Colors.white,
       curve: Curves.easeIn,
