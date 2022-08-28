@@ -58,6 +58,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     if (state is! AuthLoaded) return;
 
     try {
+      print(ProUser.controller.phone);
       await auth.verifyPhoneNumber(
         phoneNumber: ProUser.controller.phone,
         timeout: const Duration(minutes: 2),
