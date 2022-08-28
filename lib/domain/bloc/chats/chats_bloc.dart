@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:proweb_send/domain/firebase/firebase_collections.dart';
 import 'package:proweb_send/domain/models/chat_model.dart';
 import 'package:proweb_send/domain/models/pro_user.dart';
