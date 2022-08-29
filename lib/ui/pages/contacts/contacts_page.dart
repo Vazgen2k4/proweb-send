@@ -1,8 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:proweb_send/domain/bloc/contacts/contacts_bloc.dart';
-import 'package:proweb_send/domain/firebase/firebase_collections.dart';
+import 'package:proweb_send/ui/pages/chats/singl_chat_page.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
 
 class ContactsPage extends StatelessWidget {
@@ -33,10 +32,7 @@ class ContactsPageContent extends StatelessWidget {
     return BlocBuilder<ContactsBloc, ContactsState>(
       buildWhen: (previous, current) => true,
       builder: (context, state) {
-        print(state);
         if (state is! ContactsLoaded) {
-          print(1);
-          // context.read<ContactsBloc>().add(const LoadContacts());
           return const Center(
             child: CircularProgressIndicator(),
           );
@@ -64,24 +60,47 @@ class ContactsPageContent extends StatelessWidget {
             final contact = contacts[index];
 
             return ListTile(
-              leading: (contact.image != null)
+              onTap: () {
+                context.read<ContactsBloc>().add(
+                      StartChatWithContact(
+                        user: contact,
+                        onDone: (chatId) {
+                          Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              transitionDuration:
+                                  const Duration(milliseconds: 500),
+                              pageBuilder: (_, __, ___) {
+                                return SinglChatPage(
+                                  chatId: chatId,
+                                  imgPath: contact.imagePath,
+                                  contactName: contact.name,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    );
+              },
+              leading: (contact.imagePath != null)
                   ? CircleAvatar(
                       backgroundColor: AppColors.message,
-                      backgroundImage: NetworkImage(contact.image!),
+                      backgroundImage: NetworkImage(contact.imagePath!),
                     )
                   : CircleAvatar(
                       backgroundColor: AppColors.message,
                       child: Text(
-                        contact.name.substring(0, 1).toUpperCase(),
+                        (contact.name ?? '404').substring(0, 1).toUpperCase(),
                       ),
                     ),
               tileColor: AppColors.greySecondaryLight,
               title: Text(
-                contact.name,
+                '${contact.name}',
                 style: const TextStyle(color: AppColors.text),
               ),
               subtitle: Text(
-                contact.phone,
+                '${contact.phone}',
                 style: const TextStyle(color: AppColors.text),
               ),
             );

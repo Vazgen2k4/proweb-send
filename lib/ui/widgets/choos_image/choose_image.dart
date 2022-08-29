@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:proweb_send/domain/models/pro_user.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
@@ -40,7 +41,11 @@ class _ChoseImageWidgetState extends State<ChoseImageWidget> {
 
           img = imgPath != null ? FileImage(File(imgPath!)) : null;
           setState(() {});
-        } catch (e) {}
+        } catch (e) {
+          if (kDebugMode) {
+            print(e);
+          }
+        }
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(widget.radius),

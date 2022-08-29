@@ -25,7 +25,7 @@ class ChatModel {
     final Map<String, dynamic> data = {};
     if (messages != null) {
       data['message'] = messages!.map((v) => v.toJson()).toList();
-    }
+    } 
     data['users'] = users;
     return data;
   }
@@ -59,11 +59,7 @@ class Message {
 class ChatController {
   static final listController = ScrollController();
   static final textController = TextEditingController();
-  static final myListKey = GlobalKey<AnimatedListState>();
+
 
   static bool get textIsEmpty => textController.value.text.trim().isEmpty;
-
-  static Future<void> jumpDown({double offset = 0}) async {
-    listController.jumpTo(0);
-  }
 }

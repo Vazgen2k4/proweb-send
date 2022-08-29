@@ -332,54 +332,44 @@ class MessageWidget extends StatelessWidget {
             ? 16.0
             : paddingValue;
 
-    return TweenAnimationBuilder<double>(
-      duration: const Duration(milliseconds: 300),
-      tween: Tween<double>(begin: 1.0, end: 1.0),
-      builder: (context, value, child) {
-        return Opacity(
-          opacity: value,
-          child: child,
-        );
-      },
-      child: Align(
-        alignment: itsMe ? Alignment.centerRight : Alignment.centerLeft,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment:
-              itsMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-          children: <Widget>[
-            ClipPath(
-              clipper: MessageClipper(itsMe: itsMe, radius: borderRadius),
-              child: AnimatedContainer(
-                padding: EdgeInsets.only(
-                  bottom: padding,
-                  top: padding,
-                  left: !itsMe ? padding + 4 : padding,
-                  right: itsMe ? padding + 4 : padding,
-                ),
-                constraints: BoxConstraints(maxWidth: maxWidth),
-                duration: const Duration(milliseconds: 300),
-                color: itsMe ? AppColors.message : AppColors.messageSecondary,
-                child: Text(
-                  message,
-                  style: TextStyle(
-                    fontSize: fontSize,
-                    height: 1.21,
-                    color: const Color(0xff151515),
-                  ),
+    return Align(
+      alignment: itsMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment:
+            itsMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: <Widget>[
+          ClipPath(
+            clipper: MessageClipper(itsMe: itsMe, radius: borderRadius),
+            child: AnimatedContainer(
+              padding: EdgeInsets.only(
+                bottom: padding,
+                top: padding,
+                left: !itsMe ? padding + 4 : padding,
+                right: itsMe ? padding + 4 : padding,
+              ),
+              constraints: BoxConstraints(maxWidth: maxWidth),
+              duration: const Duration(milliseconds: 300),
+              color: itsMe ? AppColors.message : AppColors.messageSecondary,
+              child: Text(
+                message,
+                style: TextStyle(
+                  fontSize: fontSize,
+                  height: 1.21,
+                  color: const Color(0xff151515),
                 ),
               ),
             ),
-            Text(
-              time,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 10,
-                height: 24 / 10,
-              ),
+          ),
+          Text(
+            time,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 10,
+              height: 24 / 10,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

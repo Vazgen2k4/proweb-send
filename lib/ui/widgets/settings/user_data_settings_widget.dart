@@ -25,7 +25,6 @@ class UserDataSettingsWidget extends StatelessWidget {
       ProUser.controller.descrController,
     ];
 
-    print('Проверка');
     return BgContainer(
       padding: const EdgeInsets.only(
         left: 16,

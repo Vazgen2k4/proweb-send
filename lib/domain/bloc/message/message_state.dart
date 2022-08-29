@@ -9,10 +9,10 @@ abstract class MessageState extends Equatable {
 
 class MessageInitial extends MessageState {}
 
-class MessageLoad extends MessageState {
+class MessageLoaded extends MessageState {
   final ChatModel chat;
 
-  const MessageLoad({required this.chat});
+  const MessageLoaded({required this.chat});
 
   @override
   List<Object> get props => [chat];

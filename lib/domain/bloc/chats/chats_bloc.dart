@@ -4,14 +4,12 @@ import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:proweb_send/domain/firebase/firebase_collections.dart';
 import 'package:proweb_send/domain/models/chat_model.dart';
 import 'package:proweb_send/domain/models/pro_user.dart';
 
 part 'chats_event.dart';
 part 'chats_state.dart';
-
 
 class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
   late final Stream<QuerySnapshot<Map<String, dynamic>>> chatsStream;
@@ -23,7 +21,6 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
 
   ChatsBloc() : super(ChatsInitial()) {
     on<LoadChats>(_load);
-
 
     usersStream = FirebaseFirestore.instance
         .collection(FirebaseCollections.usersPath)
@@ -44,13 +41,14 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
     Emitter<ChatsState> emit,
   ) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
     final document = await FirebaseFirestore.instance
         .collection(FirebaseCollections.usersPath)
         .doc(uid)
         .get();
 
     final json = document.data() ?? {};
-    final _chats = ProUser.fromJson(json).chats ?? [];
+    final _chats = ProUser.fromJson(json, id: uid).chats ?? [];
 
     final allChats = await FirebaseFirestore.instance
         .collection(FirebaseCollections.chatPath)
@@ -63,6 +61,10 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
               id: chatDoc.id,
             ))
         .toList();
+    sortChatsData.sort((first, second) {
+      return (second.messages?.last.time ?? 0) -
+          (first.messages?.last.time ?? 0);
+    });
 
     final allUsers = await FirebaseFirestore.instance
         .collection(FirebaseCollections.usersPath)
@@ -74,7 +76,8 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
       final otherUserDoc =
           allUsers.docs.firstWhere((user) => user.id == otherUserId);
 
-      final otherUser = ProUser.fromJson(otherUserDoc.data());
+      final otherUser =
+          ProUser.fromJson(otherUserDoc.data(), id: otherUserId ?? '');
 
       return ChatTileData(
         message: chatModel.messages?.last,
@@ -87,8 +90,6 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
       chatsData: sortChatsData,
     ));
   }
-
- 
 
   @override
   Future<void> close() {

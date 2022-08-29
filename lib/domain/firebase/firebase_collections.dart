@@ -24,7 +24,7 @@ abstract class FirebaseCollections {
     final users = FirebaseFirestore.instance.collection(usersPath);
     final user = await users.doc(userId).get();
 
-    final curentUser = ProUser.fromJson(user.data());
+    final curentUser = ProUser.fromJson(user.data(), id: userId);
 
     return curentUser.name == null || curentUser.nikNameId == null;
   }
@@ -33,7 +33,7 @@ abstract class FirebaseCollections {
     final usersColection = FirebaseFirestore.instance.collection(usersPath);
     final usersSnapshot = await usersColection.get();
     final usersList = usersSnapshot.docs
-        .map<ProUser>((item) => ProUser.fromJson(item.data()));
+        .map<ProUser>((item) => ProUser.fromJson(item.data(), id: item.id));
 
     final isBusy = usersList.any((_user) => _user.nikNameId == nikNameId);
     return isBusy;

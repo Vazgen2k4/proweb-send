@@ -43,7 +43,7 @@ class SettingsBloc extends Bloc<SettingsBlocEvent, SettingsBlocState> {
     emit(
       SettingsBlocLoded(
         settings: settngs,
-        user: ProUser.fromJson(userDoc.data()),
+        user: ProUser.fromJson(userDoc.data(), id: userDoc.id),
       ),
     );
   }

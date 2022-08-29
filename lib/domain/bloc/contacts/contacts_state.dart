@@ -10,7 +10,7 @@ abstract class ContactsState extends Equatable {
 class ContactsInitial extends ContactsState {}
 
 class ContactsLoaded extends ContactsState {
-  final List<ProContact> contacts;
+  final List<ProUser> contacts;
 
   const ContactsLoaded({
     required this.contacts,

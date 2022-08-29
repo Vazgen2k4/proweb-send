@@ -1,12 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:proweb_send/domain/bloc/chats/chats_bloc.dart';
-import 'package:proweb_send/domain/firebase/firebase_collections.dart';
-import 'package:proweb_send/domain/models/chat_model.dart';
-import 'package:proweb_send/domain/models/pro_user.dart';
 import 'package:proweb_send/ui/pages/chats/singl_chat_page.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
 import 'package:proweb_send/ui/widgets/bg_container.dart';

@@ -4,7 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:proweb_send/domain/firebase/firebase_collections.dart';
 import 'package:proweb_send/domain/models/pro_user.dart';
 
@@ -58,7 +58,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     if (state is! AuthLoaded) return;
 
     try {
-      print(ProUser.controller.phone);
+      if (kDebugMode) {
+        print(ProUser.controller.phone);
+      }
       await auth.verifyPhoneNumber(
         phoneNumber: ProUser.controller.phone,
         timeout: const Duration(minutes: 2),
@@ -72,8 +74,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           userBlocVerificationId = verificationID;
           event.onSuccess != null ? event.onSuccess!() : 0;
         },
-        codeAutoRetrievalTimeout: (String verificationID) {
-        },
+        codeAutoRetrievalTimeout: (String verificationID) {},
       );
     } catch (e) {
       await _logOut(emit);

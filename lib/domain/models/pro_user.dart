@@ -24,7 +24,7 @@ class ProUser extends Equatable {
     this.chats,
   });
 
-  factory ProUser.fromJson(Map<String, dynamic>? json) {
+  factory ProUser.fromJson(Map<String, dynamic>? json, {required String? id}) {
     List<String> chatsList = [];
 
     if (json?['chats'] != null) {
@@ -38,6 +38,7 @@ class ProUser extends Equatable {
       descr: json?['descr'],
       nikNameId: json?['nikNameId'],
       chats: chatsList,
+      id: id,
     );
   }
 

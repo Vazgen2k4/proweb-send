@@ -4,9 +4,12 @@ import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:equatable/equatable.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:proweb_send/domain/firebase/firebase_collections.dart';
-import 'package:proweb_send/domain/models/pro_contact.dart';
+import 'package:proweb_send/domain/models/chat_model.dart';
+import 'package:proweb_send/domain/models/pro_user.dart';
 
 part 'contacts_event.dart';
 part 'contacts_state.dart';
@@ -17,6 +20,7 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
 
   ContactsBloc() : super(ContactsInitial()) {
     on<LoadContacts>(_load);
+    on<StartChatWithContact>(_startMessageWithContact);
 
     _stream = FirebaseFirestore.instance
         .collection(FirebaseCollections.usersPath)
@@ -45,7 +49,9 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
 
       emit(newState);
     } catch (e) {
-      print('[object] - Произошел пиздец');
+      if (kDebugMode) {
+        print('[object] - Произошел пиздец');
+      }
     }
   }
 
@@ -64,24 +70,99 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     required List<Contact> contacts,
     required QuerySnapshot<Map<String, dynamic>> users,
   }) {
-    final phones = users.docs.map<String>(
-        (user) => (user.get('phone') as String? ?? '-1').replaceAll(' ', ''));
+    final _users = users.docs
+        .map<ProUser>((user) => ProUser.fromJson(user.data(), id: user.id));
 
-    final normalContacts = contacts.where((el) {
+    final deviceContacts = contacts.where((el) {
       return el.displayName != null &&
           el.phones != null &&
-          el.phones!.isNotEmpty &&
-          phones.contains(el.phones!.first.value!.replaceAll(' ', ''));
+          el.phones!.isNotEmpty;
+    }).map<String>((item) {
+      return (item.phones?.first.value ?? '-1').replaceAll(' ', '');
     }).toList();
 
-    final newContacts = normalContacts.map<ProContact>((contact) {
-      return ProContact(
-        name: contact.displayName ?? 'error',
-        phone: contact.phones?.first.value ?? 'error',
-      );
+    final newContacts = _users.where((user) {
+      return user.phone != null &&
+          user.phone!.isNotEmpty &&
+          deviceContacts.contains(user.phone!.replaceAll(' ', ''));
     }).toList();
 
     return ContactsLoaded(contacts: newContacts);
+  }
+
+  Future<void> _startMessageWithContact(
+    StartChatWithContact event,
+    Emitter<ContactsState> emit,
+  ) async {
+    try {
+      if (state is! ContactsLoaded) return;
+
+      final myUid = FirebaseAuth.instance.currentUser?.uid;
+      final otherUser = event.user;
+      if (myUid == null || otherUser.id == null) return;
+
+      final allChats = await FirebaseFirestore.instance
+          .collection(FirebaseCollections.chatPath)
+          .get();
+
+      if (allChats.docs.isNotEmpty) {
+        final chatsWithOtherUser = allChats.docs
+            .map<ChatModel>(
+              (chat) => ChatModel.fromJson(chat.data(), id: chat.id),
+            )
+            .where(
+              (chat) =>
+                  chat.users != null &&
+                  chat.users!.contains(myUid) &&
+                  chat.users!.contains(otherUser.id),
+            )
+            .toList();
+
+        if (chatsWithOtherUser.isNotEmpty) {
+          event.onDone != null ? event.onDone!(chatsWithOtherUser.first.id) : 0;
+          return;
+        }
+      }
+
+      final chat = ChatModel(
+        id: '',
+        messages: [],
+        users: [myUid, otherUser.id!],
+      );
+
+      final chatDoc = await FirebaseFirestore.instance
+          .collection(FirebaseCollections.chatPath)
+          .add(chat.toJson());
+
+      await _addChatToUser(userId: otherUser.id!, chatId: chatDoc.id);
+      await _addChatToUser(userId: myUid, chatId: chatDoc.id);
+
+      event.onDone != null ? event.onDone!(chatDoc.id) : 0;
+    } catch (e) {
+      if (kDebugMode) {
+        print('[object] - Произошел пиздец');
+      }
+    }
+  }
+
+  Future<void> _addChatToUser({
+    required String userId,
+    required String chatId,
+  }) async {
+    final userData = await FirebaseFirestore.instance
+        .collection(FirebaseCollections.usersPath)
+        .doc(userId)
+        .get();
+
+    final user = ProUser.fromJson(
+      userData.data(),
+      id: userId,
+    )..chats?.add(chatId);
+
+    await FirebaseFirestore.instance
+        .collection(FirebaseCollections.usersPath)
+        .doc(userId)
+        .set(user.toJson());
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:proweb_send/domain/bloc/settings_bloc/settings_bloc.dart';
 import 'package:proweb_send/domain/models/pro_user.dart';
@@ -43,7 +44,9 @@ class SettingsPageContent extends StatelessWidget {
               icon: Icons.add_circle_outline_rounded,
               title: S.of(context).add_account,
               action: () {
-                print(1);
+                if (kDebugMode) {
+                  print(1);
+                }
               },
             ),
             const SizedBox(height: 24),
