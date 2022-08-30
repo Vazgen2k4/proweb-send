@@ -37,6 +37,7 @@ dependencies:
   # other
   skeleton_text: ^3.0.0
   mask_input_formatter: ^0.0.3
+  cached_network_image: ^3.2.1
 
 dev_dependencies:
   flutter_test:

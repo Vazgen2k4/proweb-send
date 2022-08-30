@@ -56,23 +56,64 @@ class AuthPageLogIn extends StatelessWidget {
             const SizedBox(height: 70),
             const CountriCodeField(),
             const SizedBox(height: 48),
-            Hero(
-              tag: AppHeroTags.authBtn,
-              child: AuthButton(
-                title: S.of(context).continue_button,
-                action: () async {
-                  context.read<AuthBloc>().add(
-                    AuthWithPhone(
-                      onSuccess: () {
-                        Navigator.pushNamed(context, AppRoutes.authConfirm);
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
+            _LogInBtn(),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _LogInBtn extends StatefulWidget {
+  
+  const _LogInBtn({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<_LogInBtn> createState() => _LogInBtnState();
+}
+
+class _LogInBtnState extends State<_LogInBtn> {
+  bool isTaped = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Hero(
+      tag: AppHeroTags.authBtn,
+      child: AuthButton(
+        isTaped: isTaped,
+        title: S.of(context).continue_button,
+        action: () async {
+          final bloc = context.read<AuthBloc>();
+
+          bloc.add(
+            AuthWithPhone(
+              onSuccess: () {
+                Navigator.pushNamed(context, AppRoutes.authConfirm);
+              },
+              onFailed: () {
+                final text = S.of(context).error_number;
+                final snackBar = SnackBar(
+                  content: Text(
+                    text,
+                    style: const TextStyle(color: AppColors.text),
+                  ),
+                );
+
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+                setState(() {
+                  isTaped = false;
+                });
+              },
+            ),
+          );
+
+          setState(() {
+            isTaped = true;
+          });
+        },
       ),
     );
   }

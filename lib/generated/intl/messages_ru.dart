@@ -39,6 +39,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Начните общение в\nPROCHAT!"),
         "done": MessageLookupByLibrary.simpleMessage("Готово"),
         "email": MessageLookupByLibrary.simpleMessage("Электронная почта"),
+        "error_number": MessageLookupByLibrary.simpleMessage(
+            "Произошла ошибка, попробуйте ввести другой номер"),
+        "error_sms": MessageLookupByLibrary.simpleMessage(
+            "Произошла ошибка, проверьте код и введите его ещё раз"),
         "exit_button": MessageLookupByLibrary.simpleMessage("Выход"),
         "font_size": MessageLookupByLibrary.simpleMessage("Размер текста"),
         "hello_title":

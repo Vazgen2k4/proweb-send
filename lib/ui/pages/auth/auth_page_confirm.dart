@@ -17,31 +17,6 @@ class AuthPageConfirm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void confirm() async {
-      final authBloc = context.read<AuthBloc>();
-      final state = authBloc.state;
-
-      if (state is! AuthLoaded) return;
-
-      authBloc.add(
-        AuthVerifirePhone(
-          onSuccess: () async {
-            final needCreate = await FirebaseCollections.needRegistr(
-              userId: FirebaseAuth.instance.currentUser?.uid,
-            );
-
-            if (needCreate == null) return;
-
-            Navigator.pushNamedAndRemoveUntil(
-              context,
-              needCreate ? AppRoutes.register : AppRoutes.auth,
-              (_) => false,
-            );
-          },
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: CustomAppBar.auth(
         child: Center(
@@ -116,16 +91,84 @@ class AuthPageConfirm extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 48),
-              Hero(
-                tag: AppHeroTags.authBtn,
-                child: AuthButton(
-                  title: S.of(context).create_button,
-                  action: confirm,
-                ),
-              ),
+              const _ConfirmBtn(),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ConfirmBtn extends StatefulWidget {
+  const _ConfirmBtn({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<_ConfirmBtn> createState() => _ConfirmBtnState();
+}
+
+class _ConfirmBtnState extends State<_ConfirmBtn> {
+  bool isTaped = false;
+
+  void confirm() async {
+    setState(() {
+      isTaped = true;
+    });
+
+    final authBloc = context.read<AuthBloc>();
+    final state = authBloc.state;
+
+    if (state is! AuthLoaded) {
+      setState(() {
+        isTaped = false;
+      });
+      return;
+    }
+
+    authBloc.add(
+      AuthVerifirePhone(
+        onSuccess: () async {
+          final needCreate = await FirebaseCollections.needRegistr(
+            userId: FirebaseAuth.instance.currentUser?.uid,
+          );
+
+          if (needCreate == null) return;
+
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            needCreate ? AppRoutes.register : AppRoutes.auth,
+            (_) => false,
+          );
+        },
+        onFailed: () {
+          final text = S.of(context).error_sms;
+          final snackBar = SnackBar(
+            content: Text(
+              text,
+              style: const TextStyle(color: AppColors.text),
+            ),
+          );
+
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+          setState(() {
+            isTaped = false;
+          });
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Hero(
+      tag: AppHeroTags.authBtn,
+      child: AuthButton(
+        isTaped: isTaped,
+        title: S.of(context).create_button,
+        action: confirm,
       ),
     );
   }

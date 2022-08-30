@@ -240,6 +240,26 @@ class S {
     );
   }
 
+  /// `An error occurred, please try another number`
+  String get error_number {
+    return Intl.message(
+      'An error occurred, please try another number',
+      name: 'error_number',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An error occurred, please check the code and enter it again`
+  String get error_sms {
+    return Intl.message(
+      'An error occurred, please check the code and enter it again',
+      name: 'error_sms',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Choose a country`
   String get choose_country_title {
     return Intl.message(

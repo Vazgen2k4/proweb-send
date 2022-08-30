@@ -4,6 +4,7 @@ import 'package:proweb_send/ui/theme/app_colors.dart';
 enum AuthButtonStyle { button, link }
 
 class AuthButton extends StatelessWidget {
+  final bool isTaped;
   final String title;
   final AuthButtonStyle style;
   final void Function()? action;
@@ -13,10 +14,12 @@ class AuthButton extends StatelessWidget {
     required this.title,
     this.action,
     this.style = AuthButtonStyle.button,
+    this.isTaped = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final VoidCallback? _action = isTaped ? null : action;
     final isBtn = style == AuthButtonStyle.button;
 
     final _btnStyle = ButtonStyle(
@@ -67,18 +70,32 @@ class AuthButton extends StatelessWidget {
     return Center(
       child: ConstrainedBox(
         constraints: _constrain,
-        
         child: TextButton(
-          
           style: isBtn ? _btnStyle : _linkStyle,
-          onPressed: action,
-          child: Text(
-            title,
-            textAlign: TextAlign.center,
-            style: isBtn ? _btnTextStyle : _linkTextStyle,
+          onPressed: _action,
+          child: _child(
+            btnStyle: isBtn ? _btnTextStyle : _linkTextStyle,
+            isBtn: isBtn,
           ),
         ),
       ),
+    );
+  }
+
+  Widget _child({
+    required bool isBtn,
+    required TextStyle btnStyle,
+  }) {
+    if (isBtn && isTaped) {
+      return const CircularProgressIndicator(
+        color: AppColors.text,
+      );
+    }
+
+    return Text(
+      title,
+      textAlign: TextAlign.center,
+      style: btnStyle,
     );
   }
 }

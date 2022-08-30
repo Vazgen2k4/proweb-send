@@ -1,7 +1,6 @@
 {
     "locale": "ru",
     "locale_lang": "Русский",
-
     "hello_title": "Добро пожаловать в",
     "create_title": "Начните общение в\nPROCHAT!",
     "auth_title": "Авторизация",
@@ -18,9 +17,10 @@
     "night_theme": "Ночная тема",
     "font_size": "Размер текста",
     "corners_message": "Углы сообщений",
-
     "language_settings": "Настройки языка",
-
+    
+    "error_number": "Произошла ошибка, попробуйте ввести другой номер",
+    "error_sms": "Произошла ошибка, проверьте код и введите его ещё раз",
 
     "choose_country_title": "Выберите страну",
     "exit_button": "Выход",

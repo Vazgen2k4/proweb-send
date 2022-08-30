@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -59,7 +60,6 @@ class ChatsPage extends StatelessWidget {
                   return ChatTile(
                     data: chats[index],
                     chatId: state.chatsData[index].id,
-                    
                   );
                 },
               );
@@ -111,7 +111,11 @@ class ChatTile extends StatelessWidget {
           child: CircleAvatar(
             backgroundColor: AppColors.akcentLight,
             radius: 28,
-            backgroundImage: imgPath != null ? NetworkImage(imgPath) : null,
+            backgroundImage: imgPath != null
+                ? CachedNetworkImageProvider(
+                    imgPath,
+                  )
+                : null,
           ),
         ),
         title: Text(

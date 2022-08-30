@@ -57,6 +57,7 @@ class _HomePageState extends State<HomePage> {
         authBloc.add(const AuthLogOut());
       }),
       body: PageView.builder(
+        allowImplicitScrolling: true,
         onPageChanged: _pageChange,
         controller: pageController,
         physics: const NeverScrollableScrollPhysics(),

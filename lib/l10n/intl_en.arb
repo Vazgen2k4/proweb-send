@@ -21,6 +21,9 @@
 
     "language_settings": "Language settings",
 
+    "error_number": "An error occurred, please try another number",
+    "error_sms": "An error occurred, please check the code and enter it again",
+
     "choose_country_title": "Choose a country",
     "exit_button": "Exit",
     "continue_button": "Продолжить",

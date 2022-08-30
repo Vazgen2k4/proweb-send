@@ -38,6 +38,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "create_title": MessageLookupByLibrary.simpleMessage("Create Acount"),
         "done": MessageLookupByLibrary.simpleMessage("Done"),
         "email": MessageLookupByLibrary.simpleMessage("Email"),
+        "error_number": MessageLookupByLibrary.simpleMessage(
+            "An error occurred, please try another number"),
+        "error_sms": MessageLookupByLibrary.simpleMessage(
+            "An error occurred, please check the code and enter it again"),
         "exit_button": MessageLookupByLibrary.simpleMessage("Exit"),
         "font_size": MessageLookupByLibrary.simpleMessage("Font size"),
         "hello_title": MessageLookupByLibrary.simpleMessage("Welcome to"),
