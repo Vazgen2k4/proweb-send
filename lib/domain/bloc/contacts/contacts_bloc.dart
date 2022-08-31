@@ -2,14 +2,15 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:contacts_service/contacts_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:proweb_send/domain/firebase/firebase_collections.dart';
 import 'package:proweb_send/domain/models/chat_model.dart';
 import 'package:proweb_send/domain/models/pro_user.dart';
+import 'package:proweb_send/generated/intl/messages_en.dart';
 
 part 'contacts_event.dart';
 part 'contacts_state.dart';
@@ -34,11 +35,13 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     Emitter<ContactsState> emit,
   ) async {
     try {
-      final permission = await _getContactPermission();
-      if (!permission.isGranted) return;
+      final permission = await FlutterContacts.requestPermission();
+      if (!permission) return;
 
-      final _contacts = await ContactsService.getContacts(
-        withThumbnails: false,
+      final _contacts = await FlutterContacts.getContacts(
+        withProperties: true,
+        withPhoto: false,
+        withAccounts: true,
       );
 
       final users = await _stream.first;
@@ -74,11 +77,9 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
         .map<ProUser>((user) => ProUser.fromJson(user.data(), id: user.id));
 
     final deviceContacts = contacts.where((el) {
-      return el.displayName != null &&
-          el.phones != null &&
-          el.phones!.isNotEmpty;
+      return el.phones.isNotEmpty;
     }).map<String>((item) {
-      return (item.phones?.first.value ?? '-1').replaceAll(' ', '');
+      return (item.phones.first.normalizedNumber);
     }).toList();
 
     final newContacts = _users.where((user) {
@@ -126,7 +127,15 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
 
       final chat = ChatModel(
         id: '',
-        messages: [],
+        messages: [
+          Message(
+            content: 'Вы начали общение в Prochat\n'
+                'Просим соблюдать нормы морали',
+            userId: 'admin',
+            time: DateTime.now().millisecondsSinceEpoch,
+            isAdminMessage: true,
+          ),
+        ],
         users: [myUid, otherUser.id!],
       );
 
@@ -162,7 +171,7 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     await FirebaseFirestore.instance
         .collection(FirebaseCollections.usersPath)
         .doc(userId)
-        .set(user.toJson());
+        .update(user.toJson());
   }
 
   @override

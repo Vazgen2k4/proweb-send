@@ -25,7 +25,7 @@ class ChatModel {
     final Map<String, dynamic> data = {};
     if (messages != null) {
       data['message'] = messages!.map((v) => v.toJson()).toList();
-    } 
+    }
     data['users'] = users;
     return data;
   }
@@ -36,14 +36,21 @@ class Message {
   String? content;
   String? userId;
   bool? visible;
+  bool? isAdminMessage;
 
-  Message({this.time, this.content, this.userId, this.visible});
+  Message(
+      {this.time,
+      this.content,
+      this.userId,
+      this.visible,
+      required this.isAdminMessage});
 
   Message.fromJson(Map<String, dynamic> json) {
     time = json['time'];
     content = json['content'];
     userId = json['user-id'];
     visible = json['visible'];
+    isAdminMessage = json['is-admin-mess'] ?? false;
   }
 
   Map<String, dynamic> toJson() {
@@ -52,6 +59,7 @@ class Message {
     data['content'] = content;
     data['user-id'] = userId;
     data['visible'] = visible;
+    data['is-admin-mess'] = isAdminMessage;
     return data;
   }
 }
@@ -59,7 +67,6 @@ class Message {
 class ChatController {
   static final listController = ScrollController();
   static final textController = TextEditingController();
-
 
   static bool get textIsEmpty => textController.value.text.trim().isEmpty;
 }

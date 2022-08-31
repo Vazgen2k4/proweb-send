@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:proweb_send/domain/bloc/settings_bloc/settings_bloc.dart';
 import 'package:proweb_send/domain/models/settings_model.dart';
 import 'package:proweb_send/generated/l10n.dart';
@@ -185,18 +186,22 @@ class MessengerControllWidget extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   children: <Widget>[
                     MessageWidget(
+                      isVisible: true,
                       key: UniqueKey(),
                       itsMe: true,
+                      isAdmin: false,
                       message: 'Добрый день',
-                      time: '4:18',
+                      time: DateTime.now().millisecondsSinceEpoch,
                       settings: settings,
                     ),
                     MessageWidget(
+                      isVisible: false,
                       key: UniqueKey(),
                       itsMe: false,
                       message: 'Да, здравствуйте ',
-                      time: '4:18',
+                      time: DateTime.now().millisecondsSinceEpoch,
                       settings: settings,
+                      isAdmin: false,
                     ),
                   ],
                 ),
@@ -305,8 +310,10 @@ class _SettingsThemeSliderWidgetState extends State<SettingsThemeSliderWidget> {
 class MessageWidget extends StatelessWidget {
   final String message;
   final bool itsMe;
-  final String time;
+  final int time;
   final SettingsModel settings;
+  final bool isVisible;
+  final bool isAdmin;
 
   const MessageWidget({
     Key? key,
@@ -314,6 +321,8 @@ class MessageWidget extends StatelessWidget {
     required this.itsMe,
     required this.time,
     required this.settings,
+    required this.isVisible,
+    required this.isAdmin,
   }) : super(key: key);
 
   @override
@@ -323,7 +332,6 @@ class MessageWidget extends StatelessWidget {
     final deviceWidth = MediaQuery.of(context).size.width;
     const widthPrecent = .8;
     final maxWidth = deviceWidth * widthPrecent;
-
     const kefPadding = .7;
     final paddingValue = borderRadius * kefPadding;
     final padding = paddingValue < 10
@@ -331,6 +339,49 @@ class MessageWidget extends StatelessWidget {
         : paddingValue > 20
             ? 16.0
             : paddingValue;
+
+    final date = DateTime.fromMillisecondsSinceEpoch(time);
+
+    final timeFormate = isAdmin
+        ? DateFormat('dd MMMM HH:mm').format(date)
+        : DateFormat('HH:mm').format(date);
+
+    if (isAdmin) {
+      return Align(
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(borderRadius),
+                color: (itsMe ? AppColors.message : AppColors.messageSecondary)
+                    .withOpacity(.3),
+              ),
+              child: Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: fontSize,
+                  height: 1.21,
+                  color: AppColors.text,
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              timeFormate,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                height: 24 / 10,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return Align(
       alignment: itsMe ? Alignment.centerRight : Alignment.centerLeft,
@@ -361,13 +412,25 @@ class MessageWidget extends StatelessWidget {
               ),
             ),
           ),
-          Text(
-            time,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 10,
-              height: 24 / 10,
-            ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                timeFormate,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  height: 24 / 10,
+                ),
+              ),
+              const SizedBox(width: 8),
+              if (itsMe)
+                Icon(
+                  isVisible ? Icons.done_all : Icons.done,
+                  color: AppColors.akcent,
+                )
+            ],
           ),
         ],
       ),

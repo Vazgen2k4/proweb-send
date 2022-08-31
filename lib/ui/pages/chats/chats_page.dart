@@ -1,3 +1,4 @@
+import 'package:badges/badges.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -75,6 +76,7 @@ class ChatTile extends StatelessWidget {
   final ChatTileData data;
   final String chatId;
 
+
   const ChatTile({
     Key? key,
     required this.data,
@@ -88,68 +90,81 @@ class ChatTile extends StatelessWidget {
 
     final date = DateTime.fromMillisecondsSinceEpoch(_mes?.time ?? 0);
     final time = DateFormat('HH:mm').format(date);
-    return BgContainer(
-      action: () {
-        Navigator.push(
-          context,
-          PageRouteBuilder(
-            transitionDuration: const Duration(milliseconds: 500),
-            pageBuilder: (_, __, ___) {
-              return SinglChatPage(
-                chatId: chatId,
-                imgPath: imgPath,
-                contactName: data.user?.name,
-              );
-            },
+    final notVisibleMessage = data.notVisibleMessage;
+
+    return Badge(
+      showBadge: notVisibleMessage != 0,
+      badgeColor: AppColors.error,
+      padding: EdgeInsets.all(8),
+      badgeContent: Text(
+        '$notVisibleMessage',
+        style: TextStyle(color: AppColors.text, fontSize: 10),
+      ),
+      child: BgContainer(
+        action: () {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              transitionDuration: const Duration(milliseconds: 500),
+              pageBuilder: (_, __, ___) {
+                return SinglChatPage(
+                  chatId: chatId,
+                  imgPath: imgPath,
+                  contactName: data.user?.name,
+                );
+              },
+            ),
+          );
+        },
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: ListTile(
+          leading: Hero(
+            tag: chatId,
+            child: CircleAvatar(
+              backgroundColor: AppColors.akcentLight,
+              radius: 28,
+              backgroundImage: imgPath != null
+                  ? CachedNetworkImageProvider(
+                      imgPath,
+                    )
+                  : null,
+            ),
           ),
-        );
-      },
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: ListTile(
-        leading: Hero(
-          tag: chatId,
-          child: CircleAvatar(
-            backgroundColor: AppColors.akcentLight,
-            radius: 28,
-            backgroundImage: imgPath != null
-                ? CachedNetworkImageProvider(
-                    imgPath,
-                  )
-                : null,
+          title: Text(
+            '${data.user?.name}',
+            style: const TextStyle(
+              color: AppColors.text,
+            ),
           ),
-        ),
-        title: Text(
-          '${data.user?.name}',
-          style: const TextStyle(
-            color: AppColors.text,
+          subtitle: Text(
+            '${_mes?.content}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: AppColors.textInfoSecondary,
+              fontSize: 14,
+              height: 1.5,
+            ),
           ),
-        ),
-        subtitle: Text(
-          '${_mes?.content}',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: AppColors.textInfoSecondary,
-            fontSize: 14,
-            height: 1.5,
-          ),
-        ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              time,
-              style: const TextStyle(
-                color: AppColors.text,
+          trailing: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                time,
+                style: const TextStyle(
+                  color: AppColors.text,
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            const Icon(
-              Icons.done_all,
-              size: 16,
-              color: AppColors.akcentSecondaryLight,
-            ),
-          ],
+              const SizedBox(height: 12),
+              Icon(
+                _mes?.visible != null && _mes!.visible!
+                    ? Icons.done_all
+                    : Icons.done,
+                size: 16,
+                color: AppColors.akcentSecondaryLight,
+              ),
+            ],
+          ),
         ),
       ),
     );

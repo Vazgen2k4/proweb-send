@@ -19,3 +19,16 @@ class SendMessage extends MessageEvent {
   @override
   List<Object> get props => [chatId];
 }
+
+class ReadMessage extends MessageEvent {
+  final int index;
+  final Message message;
+
+  const ReadMessage({
+    required this.index,
+    required this.message,
+  });
+
+  @override
+  List<Object> get props => [ index, message];
+}

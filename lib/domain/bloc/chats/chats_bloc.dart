@@ -56,15 +56,28 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
 
     final sortChatsData = allChats.docs
         .where((chatDoc) => _chats.contains(chatDoc.id))
-        .map<ChatModel>((chatDoc) => ChatModel.fromJson(
-              chatDoc.data(),
-              id: chatDoc.id,
-            ))
+        .map<ChatModel>(
+          (chatDoc) => ChatModel.fromJson(
+            chatDoc.data(),
+            id: chatDoc.id,
+          ),
+        )
         .toList();
-    sortChatsData.sort((first, second) {
-      return (second.messages?.last.time ?? 0) -
-          (first.messages?.last.time ?? 0);
-    });
+
+    if (sortChatsData.length > 1) {
+      print(sortChatsData);
+      sortChatsData.sort((first, second) {
+        final seconTime = second.messages != null && second.messages!.isNotEmpty
+            ? second.messages?.first.time ?? 0
+            : 0;
+
+        final firstTime = first.messages != null && first.messages!.isNotEmpty
+            ? first.messages?.first.time ?? 0
+            : 0;
+
+        return seconTime - firstTime;
+      });
+    }
 
     final allUsers = await FirebaseFirestore.instance
         .collection(FirebaseCollections.usersPath)
@@ -79,9 +92,15 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
       final otherUser =
           ProUser.fromJson(otherUserDoc.data(), id: otherUserId ?? '');
 
+      final notVisible = chatModel.messages
+          ?.map<int>((message) =>
+              message.visible == true || message.userId == uid ? 0 : 1)
+          .reduce((v, e) => v + e);
+
       return ChatTileData(
-        message: chatModel.messages?.last,
+        message: chatModel.messages?.first,
         user: otherUser,
+        notVisibleMessage: notVisible ?? 0,
       );
     }).toList();
 

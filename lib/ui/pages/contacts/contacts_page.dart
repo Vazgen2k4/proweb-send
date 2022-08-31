@@ -52,6 +52,7 @@ class ContactsPageContent extends StatelessWidget {
           );
         }
 
+
         return ListView.separated(
           itemCount: contacts.length,
           padding: const EdgeInsets.all(16),
@@ -83,7 +84,8 @@ class ContactsPageContent extends StatelessWidget {
                       ),
                     );
               },
-              leading: (contact.imagePath != null)
+              leading: (contact.imagePath != null &&
+                      contact.imagePath!.isNotEmpty)
                   ? CircleAvatar(
                       backgroundColor: AppColors.message,
                       backgroundImage: NetworkImage(contact.imagePath!),

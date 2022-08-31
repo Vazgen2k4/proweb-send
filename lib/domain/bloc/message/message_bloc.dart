@@ -21,11 +21,12 @@ class MessageBloc extends Bloc<MessageEvent, MessageState> {
   MessageBloc(this.curentChatid) : super(MessageInitial()) {
     on<LoadMessage>(_load);
     on<SendMessage>(_send);
+    on<ReadMessage>(_read);
 
     _stream = FirebaseFirestore.instance
         .collection(FirebaseCollections.chatPath)
         .doc(curentChatid)
-        .snapshots();
+        .snapshots(includeMetadataChanges: true);
 
     _streamSub = _stream.listen((_) => add(const LoadMessage()));
   }
@@ -54,11 +55,13 @@ class MessageBloc extends Bloc<MessageEvent, MessageState> {
       time: DateTime.now().millisecondsSinceEpoch,
       content: ChatController.textController.value.text,
       userId: uid,
+      isAdminMessage: false,
+      visible: false,
     );
 
     final chat = state.chat;
 
-    chat.messages?.add(mess);
+    chat.messages?.insert(0, mess);
 
     ChatController.textController.clear();
 
@@ -66,6 +69,26 @@ class MessageBloc extends Bloc<MessageEvent, MessageState> {
         .collection(FirebaseCollections.chatPath)
         .doc(event.chatId)
         .set(chat.toJson());
+  }
+
+  Future<void> _read(
+    ReadMessage event,
+    Emitter<MessageState> emit,
+  ) async {
+    final message = event.message..visible = true;
+
+    final messDoc = await FirebaseFirestore.instance
+        .collection(FirebaseCollections.chatPath)
+        .doc(curentChatid)
+        .get();
+
+    final chat = ChatModel.fromJson(messDoc.data() ?? {}, id: curentChatid);
+    chat.messages?[event.index] = message;
+
+    await FirebaseFirestore.instance
+        .collection(FirebaseCollections.chatPath)
+        .doc(curentChatid)
+        .update(chat.toJson());
   }
 
   @override

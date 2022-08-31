@@ -35,10 +35,11 @@ class ChatsLoaded extends ChatsState {
 class ChatTileData {
   final ProUser? user;
   final Message? message;
-  // final String chatId;
+  final int notVisibleMessage;
 
   ChatTileData({
     required this.user,
     required this.message,
+    required this.notVisibleMessage,
   });
 }

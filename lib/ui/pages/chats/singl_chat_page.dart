@@ -1,13 +1,13 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:inview_notifier_list/inview_notifier_list.dart';
 import 'package:proweb_send/domain/bloc/message/message_bloc.dart';
 import 'package:proweb_send/domain/bloc/settings_bloc/settings_bloc.dart';
 import 'package:proweb_send/domain/models/chat_model.dart';
 import 'package:proweb_send/domain/models/settings_model.dart';
-import 'package:proweb_send/generated/intl/messages_en.dart';
 import 'package:proweb_send/ui/pages/settings/settings_theme_page.dart';
 import 'package:proweb_send/ui/theme/app_colors.dart';
 
@@ -24,7 +24,7 @@ class SinglChatPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgImg = imgPath != null ? NetworkImage(imgPath!) : null;
+    final bgImg = imgPath != null ? CachedNetworkImageProvider(imgPath!) : null;
 
     return BlocProvider<MessageBloc>(
       create: (context) => MessageBloc(chatId)..add(const LoadMessage()),
@@ -58,14 +58,7 @@ class SinglChatPage extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.add_circle_outline_outlined,
-                  color: AppColors.textInfo,
-                  size: 30,
-                ),
-              ),
+              
               const SizedBox(width: 8),
               EnterInput(chatId: chatId),
               const SizedBox(width: 8),
@@ -142,7 +135,7 @@ class ChatMessageWidget extends StatelessWidget {
   }
 }
 
-class ChatList extends StatefulWidget {
+class ChatList extends StatelessWidget {
   final SettingsModel settings;
   const ChatList({
     Key? key,
@@ -153,43 +146,63 @@ class ChatList extends StatefulWidget {
   final List<Message> messages;
 
   @override
-  State<ChatList> createState() => _ChatListState();
+  Widget build(BuildContext context) {
+    return InViewNotifierList(
+      reverse: true,
+      itemCount: messages.length,
+      padding: const EdgeInsets.only(
+        bottom: 100,
+        left: 16,
+        top: 16,
+        right: 16,
+      ),
+      isInViewPortCondition: (
+        deltaTop,
+        deltaBottom,
+        vpHeight,
+      ) {
+        return deltaTop < (vpHeight) && deltaTop > 0;
+      },
+      onListEndReached: () {
+        print('object');
+      },
+      builder: (context, index) {
+        final message = messages[index];
+        final myUid = FirebaseAuth.instance.currentUser?.uid;
+        final itsMe = myUid == message.userId;
+
+        final _isVisible = message.visible != null && message.visible!;
+
+        return InViewNotifierWidget(
+          id: '$index',
+          builder: (context, isInView, child) {
+            final isNotVisible =
+                message.visible == null || message.visible == false;
+
+            if (isNotVisible && !itsMe) {
+              context
+                  .read<MessageBloc>()
+                  .add(ReadMessage(index: index, message: message));
+            }
+
+            return child ?? const SizedBox();
+          },
+          child: MessageWidget(
+            isVisible: _isVisible,
+            message: message.content ?? 'Ошибка',
+            itsMe: itsMe,
+            time: message.time ?? 0,
+            settings: settings,
+            isAdmin: message.isAdminMessage == true,
+          ),
+        );
+      },
+    );
+  }
 }
 
-class _ChatListState extends State<ChatList> {
-  List<Message> _reverse = [];
-  final myListKey = GlobalKey<AnimatedListState>();
-
-  @override
-  void initState() {
-    _reverse = widget.messages.reversed.toList();
-
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _reverse = [];
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocListener<MessageBloc, MessageState>(
-      listener: (context, state) {
-        if (state is! MessageLoaded) return;
-        final newMess = state.chat.messages?.last;
-        if (newMess == null) return;
-        _reverse.insert(0, newMess);
-        myListKey.currentState!.insertItem(
-          0,
-          duration: const Duration(milliseconds: 200),
-        );
-        if (kDebugMode) {
-          print(_reverse.length);
-        }
-      },
-      child: AnimatedList(
+/* 
+ AnimatedList(
         key: myListKey,
         reverse: true,
         controller: ChatController.listController,
@@ -231,9 +244,8 @@ class _ChatListState extends State<ChatList> {
           );
         },
       ),
-    );
-  }
-}
+
+ */
 
 class EnterInput extends StatefulWidget {
   final String chatId;
@@ -311,16 +323,8 @@ class _SendSwichButtonState extends State<SendSwichButton> {
 
   @override
   Widget build(BuildContext context) {
-    final _btns = <IconButton>[
-      IconButton(
-        key: const ValueKey(1),
-        onPressed: () {},
-        icon: const Icon(
-          Icons.sentiment_satisfied_alt,
-          color: AppColors.textInfo,
-          size: 30,
-        ),
-      ),
+    final _btns = <Widget>[
+      SizedBox(),
       IconButton(
         key: const ValueKey(2),
         onPressed: () {
